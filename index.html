@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In touch with Vlad</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      color: #fff;
+      padding: 20px 16px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .month-nav button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .month-nav button:active {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .month-nav .month-label {
+      font-size: 16px;
+      font-weight: 600;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 4px;
+      position: sticky;
+      top: 88px;
+      z-index: 9;
+    }
+
+    .weekdays span {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #fff;
+      gap: 1px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .day-cell {
+      min-height: 48px;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+      border: 2px solid transparent;
+    }
+
+    .day-cell.other-month {
+      color: #ccc;
+    }
+
+    .day-cell.today {
+      font-weight: 700;
+      color: #6c5ce7;
+    }
+
+    .day-cell.today .day-number {
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-cell.selected {
+      background: #f0edff;
+      border-color: #6c5ce7;
+      border-radius: 8px;
+    }
+
+    .day-cell .dot-row {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .day-cell .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .dot.for-sure {
+      background: #00b894;
+    }
+
+    .dot.not-exactly {
+      background: #fdcb6e;
+    }
+
+    .activities-panel {
+      padding: 12px 16px 100px;
+    }
+
+    .selected-date-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .activity-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .activity-card .status-bar {
+      width: 4px;
+      min-height: 40px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+
+    .status-bar.for-sure {
+      background: #00b894;
+    }
+
+    .status-bar.not-exactly {
+      background: #fdcb6e;
+    }
+
+    .activity-info {
+      flex: 1;
+    }
+
+    .activity-info .activity-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .activity-info .activity-time {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .activity-card .status-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .status-badge.for-sure {
+      background: #e6f9f1;
+      color: #00b894;
+    }
+
+    .status-badge.not-exactly {
+      background: #fef9e7;
+      color: #e17055;
+    }
+
+    .no-plans {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 14px;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .legend-item .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>In touch with Vlad</h1>
+  <div class="month-nav">
+    <button id="prevMonth">&#8249;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button id="nextMonth">&#8250;</button>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item">
+    <span class="dot for-sure"></span> for sure
+  </div>
+  <div class="legend-item">
+    <span class="dot not-exactly"></span> not exactly
+  </div>
+</div>
+
+<div class="weekdays">
+  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+
+<div class="calendar-grid" id="calendarGrid"></div>
+
+<div class="activities-panel">
+  <div class="selected-date-label" id="selectedDateLabel"></div>
+  <div id="activitiesList"></div>
+</div>
+
+<script>
+  // =============================================
+  // YOUR PLANS — edit this list to update the page
+  // =============================================
+  // Each item:
+  //   date:     "YYYY-MM-DD"
+  //   activity: description of what you're doing
+  //   time:     time range, e.g. "from 16 to 19"
+  //   status:   "for sure" or "not exactly"
+  // =============================================
+  const plans = [
+    {
+      date: "2026-02-05",
+      activity: "Climb in Sao Rock",
+      time: "from 16 to 19",
+      status: "for sure"
+    },
+    {
+      date: "2026-02-07",
+      activity: "Beach volleyball",
+      time: "from 10 to 12",
+      status: "not exactly"
+    },
+    {
+      date: "2026-02-07",
+      activity: "Dinner with friends",
+      time: "from 20 to 22",
+      status: "for sure"
+    },
+  ];
+  // =============================================
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const today = new Date();
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+  let selectedDate = formatDate(today);
+
+  function formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function getPlansForDate(dateStr) {
+    return plans.filter(p => p.date === dateStr);
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById("calendarGrid");
+    const label = document.getElementById("monthLabel");
+    label.textContent = `${monthNames[viewMonth]} ${viewYear}`;
+
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    let startDay = firstDay.getDay();
+    // Convert Sunday=0 to Monday-based week
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrev = new Date(viewYear, viewMonth, 0).getDate();
+
+    let cells = "";
+    const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+
+    for (let i = 0; i < totalCells; i++) {
+      let dayNum, dateStr, classes = [];
+
+      if (i < startDay) {
+        // Previous month
+        dayNum = daysInPrev - startDay + i + 1;
+        const pm = viewMonth === 0 ? 11 : viewMonth - 1;
+        const py = viewMonth === 0 ? viewYear - 1 : viewYear;
+        dateStr = `${py}-${String(pm + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+        classes.push("other-month");
+      } else if (i >= startDay + daysInMonth) {
+        // Next month
+        dayNum = i - startDay - daysInMonth + 1;
+        const nm = viewMonth === 11 ? 0 : viewMonth + 1;
+        const ny = viewMonth === 11 ? viewYear + 1 : viewYear;
+        dateStr = `${ny}-${String(nm + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+        classes.push("other-month");
+      } else {
+        dayNum = i - startDay + 1;
+        dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+      }
+
+      const todayStr = formatDate(today);
+      if (dateStr === todayStr) classes.push("today");
+      if (dateStr === selectedDate) classes.push("selected");
+
+      const dayPlans = getPlansForDate(dateStr);
+      let dots = "";
+      if (dayPlans.length > 0) {
+        dots = '<div class="dot-row">';
+        dayPlans.forEach(p => {
+          const cls = p.status === "for sure" ? "for-sure" : "not-exactly";
+          dots += `<span class="dot ${cls}"></span>`;
+        });
+        dots += "</div>";
+      }
+
+      const numberHtml = classes.includes("today")
+        ? `<span class="day-number">${dayNum}</span>`
+        : `${dayNum}`;
+
+      cells += `<div class="day-cell ${classes.join(" ")}" data-date="${dateStr}">${numberHtml}${dots}</div>`;
+    }
+
+    grid.innerHTML = cells;
+
+    grid.querySelectorAll(".day-cell").forEach(cell => {
+      cell.addEventListener("click", () => {
+        selectedDate = cell.dataset.date;
+        renderCalendar();
+        renderActivities();
+      });
+    });
+
+    renderActivities();
+  }
+
+  function renderActivities() {
+    const list = document.getElementById("activitiesList");
+    const label = document.getElementById("selectedDateLabel");
+
+    const d = new Date(selectedDate + "T00:00:00");
+    const options = { weekday: "long", day: "numeric", month: "long" };
+    label.textContent = d.toLocaleDateString("en-US", options);
+
+    const dayPlans = getPlansForDate(selectedDate);
+
+    if (dayPlans.length === 0) {
+      list.innerHTML = '<div class="no-plans">No plans for this day</div>';
+      return;
+    }
+
+    let html = "";
+    dayPlans.forEach(p => {
+      const statusClass = p.status === "for sure" ? "for-sure" : "not-exactly";
+      html += `
+        <div class="activity-card">
+          <div class="status-bar ${statusClass}"></div>
+          <div class="activity-info">
+            <div class="activity-name">${p.activity}</div>
+            <div class="activity-time">${p.time}</div>
+          </div>
+          <span class="status-badge ${statusClass}">${p.status}</span>
+        </div>
+      `;
+    });
+
+    list.innerHTML = html;
+  }
+
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
+  renderCalendar();
+</script>
+
+</body>
+</html>
