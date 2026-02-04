@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>In touch with Vlad</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -29,11 +25,7 @@
       box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
     }
 
-    header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
 
     .month-nav {
       display: flex;
@@ -44,29 +36,23 @@
     }
 
     .month-nav button {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
       border: none;
       color: #fff;
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       font-size: 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
     }
 
-    .month-nav button:active {
-      background: rgba(255, 255, 255, 0.4);
-    }
+    .month-nav button:active { background: rgba(255,255,255,0.4); }
 
     .month-nav .month-label {
-      font-size: 16px;
-      font-weight: 600;
-      min-width: 160px;
-      text-align: center;
+      font-size: 16px; font-weight: 600;
+      min-width: 160px; text-align: center;
     }
 
     .weekdays {
@@ -82,10 +68,8 @@
 
     .weekdays span {
       text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: #888;
-      text-transform: uppercase;
+      font-size: 12px; font-weight: 600;
+      color: #888; text-transform: uppercase;
     }
 
     .calendar-grid {
@@ -102,26 +86,18 @@
       text-align: center;
       font-size: 14px;
       cursor: pointer;
-      position: relative;
-      transition: background 0.15s;
       border: 2px solid transparent;
+      transition: background 0.15s;
     }
 
-    .day-cell.other-month {
-      color: #ccc;
-    }
-
-    .day-cell.today {
-      font-weight: 700;
-      color: #6c5ce7;
-    }
+    .day-cell.other-month { color: #ccc; }
+    .day-cell.today { font-weight: 700; color: #6c5ce7; }
 
     .day-cell.today .day-number {
       background: #6c5ce7;
       color: #fff;
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
+      width: 28px; height: 28px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -140,100 +116,9 @@
       margin-top: 4px;
     }
 
-    .day-cell .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-
-    .dot.for-sure {
-      background: #00b894;
-    }
-
-    .dot.not-exactly {
-      background: #fdcb6e;
-    }
-
-    .activities-panel {
-      padding: 12px 16px 100px;
-    }
-
-    .selected-date-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #888;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .activity-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .activity-card .status-bar {
-      width: 4px;
-      min-height: 40px;
-      border-radius: 2px;
-      flex-shrink: 0;
-      align-self: stretch;
-    }
-
-    .status-bar.for-sure {
-      background: #00b894;
-    }
-
-    .status-bar.not-exactly {
-      background: #fdcb6e;
-    }
-
-    .activity-info {
-      flex: 1;
-    }
-
-    .activity-info .activity-name {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .activity-info .activity-time {
-      font-size: 13px;
-      color: #666;
-    }
-
-    .activity-card .status-badge {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-weight: 600;
-      white-space: nowrap;
-      align-self: center;
-    }
-
-    .status-badge.for-sure {
-      background: #e6f9f1;
-      color: #00b894;
-    }
-
-    .status-badge.not-exactly {
-      background: #fef9e7;
-      color: #e17055;
-    }
-
-    .no-plans {
-      text-align: center;
-      color: #aaa;
-      padding: 40px 0;
-      font-size: 14px;
-    }
+    .day-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot.for-sure { background: #00b894; }
+    .dot.not-exactly { background: #fdcb6e; }
 
     .legend {
       display: flex;
@@ -248,14 +133,182 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 12px;
-      color: #888;
+      font-size: 12px; color: #888;
     }
 
-    .legend-item .dot {
-      width: 8px;
-      height: 8px;
+    .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .activities-panel { padding: 12px 16px 100px; }
+
+    .selected-date-label {
+      font-size: 14px; font-weight: 600;
+      color: #888;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .activity-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .activity-card .status-bar {
+      width: 4px;
+      min-height: 40px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+
+    .status-bar.for-sure { background: #00b894; }
+    .status-bar.not-exactly { background: #fdcb6e; }
+
+    .activity-info { flex: 1; }
+    .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .activity-info .activity-time { font-size: 13px; color: #666; }
+
+    .activity-card .status-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .status-badge.for-sure { background: #e6f9f1; color: #00b894; }
+    .status-badge.not-exactly { background: #fef9e7; color: #e17055; }
+
+    .no-plans { text-align: center; color: #aaa; padding: 40px 0; font-size: 14px; }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ddd;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      align-self: center;
       border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .delete-btn:active { color: #e74c3c; background: #fee; }
+
+    /* Floating add button */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      color: #fff;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(108,92,231,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: transform 0.2s;
+    }
+
+    .fab:active { transform: scale(0.9); }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 30;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+      color: #1a1a2e;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #f8f8f8;
+    }
+
+    .modal input:focus, .modal select:focus {
+      outline: none;
+      border-color: #6c5ce7;
+      background: #fff;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-cancel { background: #f0f0f0; color: #666; }
+    .btn-save { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
+    .btn-save:active { opacity: 0.8; }
+
+    .loading {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -271,12 +324,8 @@
 </header>
 
 <div class="legend">
-  <div class="legend-item">
-    <span class="dot for-sure"></span> for sure
-  </div>
-  <div class="legend-item">
-    <span class="dot not-exactly"></span> not exactly
-  </div>
+  <div class="legend-item"><span class="dot for-sure"></span> for sure</div>
+  <div class="legend-item"><span class="dot not-exactly"></span> not exactly</div>
 </div>
 
 <div class="weekdays">
@@ -287,44 +336,44 @@
 
 <div class="activities-panel">
   <div class="selected-date-label" id="selectedDateLabel"></div>
-  <div id="activitiesList"></div>
+  <div id="activitiesList"><div class="loading">Loading plans...</div></div>
+</div>
+
+<button class="fab" id="fabBtn">+</button>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Add plan</h2>
+    <label>Date</label>
+    <input type="date" id="inputDate">
+    <label>Activity</label>
+    <input type="text" id="inputActivity" placeholder="e.g. Climb in Sao Rock">
+    <label>Time</label>
+    <input type="text" id="inputTime" placeholder="e.g. from 16 to 19">
+    <label>Status</label>
+    <select id="inputStatus">
+      <option value="for sure">for sure</option>
+      <option value="not exactly">not exactly</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="btnCancel">Cancel</button>
+      <button class="btn-save" id="btnSave">Save</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // =============================================
-  // YOUR PLANS — edit this list to update the page
-  // =============================================
-  // Each item:
-  //   date:     "YYYY-MM-DD"
-  //   activity: description of what you're doing
-  //   time:     time range, e.g. "from 16 to 19"
-  //   status:   "for sure" or "not exactly"
-  // =============================================
-  const plans = [
-    {
-      date: "2026-02-05",
-      activity: "Climb in Sao Rock",
-      time: "from 16 to 19",
-      status: "for sure"
-    },
-    {
-      date: "2026-02-07",
-      activity: "Beach volleyball",
-      time: "from 10 to 12",
-      status: "not exactly"
-    },
-    {
-      date: "2026-02-07",
-      activity: "Dinner with friends",
-      time: "from 20 to 22",
-      status: "for sure"
-    },
-  ];
-  // =============================================
+  const BIN_ID = "6983db1dae596e708f11d006";
+  const API_KEY = "$2a$10$pNqmUaQft12qfYPVB2YFOO.GyS2cW2aAKI4jDlVoSwELm1gfHwGQW";
+  const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+  const ADMIN_PASSWORD = "vlad";
+
+  let plans = [];
+  let isAdmin = false;
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
   ];
 
   const today = new Date();
@@ -343,14 +392,44 @@
     return plans.filter(p => p.date === dateStr);
   }
 
+  // --- JSONBin API ---
+  async function loadPlans() {
+    try {
+      const res = await fetch(BIN_URL + "/latest", {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const data = await res.json();
+      plans = data.record.plans || [];
+    } catch (e) {
+      console.error("Could not load plans:", e);
+      plans = [];
+    }
+    renderCalendar();
+  }
+
+  async function savePlans() {
+    try {
+      await fetch(BIN_URL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ plans })
+      });
+    } catch (e) {
+      console.error("Could not save plans:", e);
+      alert("Failed to save. Try again.");
+    }
+  }
+
+  // --- Calendar ---
   function renderCalendar() {
     const grid = document.getElementById("calendarGrid");
-    const label = document.getElementById("monthLabel");
-    label.textContent = `${monthNames[viewMonth]} ${viewYear}`;
+    document.getElementById("monthLabel").textContent = `${monthNames[viewMonth]} ${viewYear}`;
 
     const firstDay = new Date(viewYear, viewMonth, 1);
     let startDay = firstDay.getDay();
-    // Convert Sunday=0 to Monday-based week
     startDay = startDay === 0 ? 6 : startDay - 1;
 
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -363,26 +442,23 @@
       let dayNum, dateStr, classes = [];
 
       if (i < startDay) {
-        // Previous month
         dayNum = daysInPrev - startDay + i + 1;
         const pm = viewMonth === 0 ? 11 : viewMonth - 1;
         const py = viewMonth === 0 ? viewYear - 1 : viewYear;
-        dateStr = `${py}-${String(pm + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+        dateStr = `${py}-${String(pm+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
         classes.push("other-month");
       } else if (i >= startDay + daysInMonth) {
-        // Next month
         dayNum = i - startDay - daysInMonth + 1;
         const nm = viewMonth === 11 ? 0 : viewMonth + 1;
         const ny = viewMonth === 11 ? viewYear + 1 : viewYear;
-        dateStr = `${ny}-${String(nm + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+        dateStr = `${ny}-${String(nm+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
         classes.push("other-month");
       } else {
         dayNum = i - startDay + 1;
-        dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+        dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
       }
 
-      const todayStr = formatDate(today);
-      if (dateStr === todayStr) classes.push("today");
+      if (dateStr === formatDate(today)) classes.push("today");
       if (dateStr === selectedDate) classes.push("selected");
 
       const dayPlans = getPlansForDate(dateStr);
@@ -390,26 +466,22 @@
       if (dayPlans.length > 0) {
         dots = '<div class="dot-row">';
         dayPlans.forEach(p => {
-          const cls = p.status === "for sure" ? "for-sure" : "not-exactly";
-          dots += `<span class="dot ${cls}"></span>`;
+          dots += `<span class="dot ${p.status === "for sure" ? "for-sure" : "not-exactly"}"></span>`;
         });
         dots += "</div>";
       }
 
-      const numberHtml = classes.includes("today")
-        ? `<span class="day-number">${dayNum}</span>`
-        : `${dayNum}`;
+      const numHtml = classes.includes("today")
+        ? `<span class="day-number">${dayNum}</span>` : `${dayNum}`;
 
-      cells += `<div class="day-cell ${classes.join(" ")}" data-date="${dateStr}">${numberHtml}${dots}</div>`;
+      cells += `<div class="day-cell ${classes.join(" ")}" data-date="${dateStr}">${numHtml}${dots}</div>`;
     }
 
     grid.innerHTML = cells;
-
     grid.querySelectorAll(".day-cell").forEach(cell => {
       cell.addEventListener("click", () => {
         selectedDate = cell.dataset.date;
         renderCalendar();
-        renderActivities();
       });
     });
 
@@ -421,8 +493,7 @@
     const label = document.getElementById("selectedDateLabel");
 
     const d = new Date(selectedDate + "T00:00:00");
-    const options = { weekday: "long", day: "numeric", month: "long" };
-    label.textContent = d.toLocaleDateString("en-US", options);
+    label.textContent = d.toLocaleDateString("en-US", { weekday:"long", day:"numeric", month:"long" });
 
     const dayPlans = getPlansForDate(selectedDate);
 
@@ -432,23 +503,86 @@
     }
 
     let html = "";
-    dayPlans.forEach(p => {
-      const statusClass = p.status === "for sure" ? "for-sure" : "not-exactly";
+    dayPlans.forEach((p, idx) => {
+      const sc = p.status === "for sure" ? "for-sure" : "not-exactly";
+      const planIndex = plans.indexOf(p);
+      const deleteBtn = isAdmin
+        ? `<button class="delete-btn" data-index="${planIndex}">&times;</button>`
+        : "";
       html += `
         <div class="activity-card">
-          <div class="status-bar ${statusClass}"></div>
+          <div class="status-bar ${sc}"></div>
           <div class="activity-info">
             <div class="activity-name">${p.activity}</div>
             <div class="activity-time">${p.time}</div>
           </div>
-          <span class="status-badge ${statusClass}">${p.status}</span>
-        </div>
-      `;
+          <span class="status-badge ${sc}">${p.status}</span>
+          ${deleteBtn}
+        </div>`;
     });
 
     list.innerHTML = html;
+
+    if (isAdmin) {
+      list.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const i = parseInt(btn.dataset.index);
+          plans.splice(i, 1);
+          await savePlans();
+          renderCalendar();
+        });
+      });
+    }
   }
 
+  // --- Admin / Add plan ---
+  document.getElementById("fabBtn").addEventListener("click", () => {
+    if (!isAdmin) {
+      const pw = prompt("Password:");
+      if (pw !== ADMIN_PASSWORD) {
+        if (pw !== null) alert("Wrong password");
+        return;
+      }
+      isAdmin = true;
+      renderActivities();
+    }
+    document.getElementById("inputDate").value = selectedDate;
+    document.getElementById("inputActivity").value = "";
+    document.getElementById("inputTime").value = "";
+    document.getElementById("inputStatus").value = "for sure";
+    document.getElementById("modalOverlay").classList.add("open");
+  });
+
+  document.getElementById("btnCancel").addEventListener("click", () => {
+    document.getElementById("modalOverlay").classList.remove("open");
+  });
+
+  document.getElementById("modalOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById("modalOverlay").classList.remove("open");
+    }
+  });
+
+  document.getElementById("btnSave").addEventListener("click", async () => {
+    const date = document.getElementById("inputDate").value;
+    const activity = document.getElementById("inputActivity").value.trim();
+    const time = document.getElementById("inputTime").value.trim();
+    const status = document.getElementById("inputStatus").value;
+
+    if (!date || !activity || !time) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    plans.push({ date, activity, time, status });
+    plans.sort((a, b) => a.date.localeCompare(b.date));
+
+    document.getElementById("modalOverlay").classList.remove("open");
+    renderCalendar();
+    await savePlans();
+  });
+
+  // --- Navigation ---
   document.getElementById("prevMonth").addEventListener("click", () => {
     viewMonth--;
     if (viewMonth < 0) { viewMonth = 11; viewYear--; }
@@ -461,7 +595,7 @@
     renderCalendar();
   });
 
-  renderCalendar();
+  loadPlans();
 </script>
 
 </body>
