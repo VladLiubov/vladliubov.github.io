@@ -291,36 +291,56 @@
 </div>
 
 <script>
-  // =============================================
-  // YOUR PLANS — edit this list to update the page
-  // =============================================
-  // Each item:
-  //   date:     "YYYY-MM-DD"
-  //   activity: description of what you're doing
-  //   time:     time range, e.g. "from 16 to 19"
-  //   status:   "for sure" or "not exactly"
-  // =============================================
-  const plans = [
-    {
-      date: "2026-02-05",
-      activity: "Climb in Sao Rock",
-      time: "from 16 to 19",
-      status: "for sure"
-    },
-    {
-      date: "2026-02-07",
-      activity: "Beach volleyball",
-      time: "from 10 to 12",
-      status: "not exactly"
-    },
-    {
-      date: "2026-02-07",
-      activity: "Dinner with friends",
-      time: "from 20 to 22",
-      status: "for sure"
-    },
-  ];
-  // =============================================
+  // Google Sheet ID — data is fetched from your spreadsheet automatically
+  const SHEET_ID = "1V2hxYIa5ukhANlFANnpnmwTzGMwyQl0pR5SCz1rXrd0";
+  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+  let plans = [];
+
+  function parseCSV(text) {
+    const lines = text.split("\n").filter(line => line.trim());
+    if (lines.length < 2) return [];
+
+    const results = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = [];
+      let current = "";
+      let inQuotes = false;
+      for (let c = 0; c < lines[i].length; c++) {
+        const ch = lines[i][c];
+        if (ch === '"') {
+          inQuotes = !inQuotes;
+        } else if (ch === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = "";
+        } else {
+          current += ch;
+        }
+      }
+      values.push(current.trim());
+
+      if (values.length >= 4 && values[0]) {
+        results.push({
+          date: values[0],
+          activity: values[1],
+          time: values[2],
+          status: values[3].toLowerCase()
+        });
+      }
+    }
+    return results;
+  }
+
+  async function loadPlans() {
+    try {
+      const res = await fetch(SHEET_URL);
+      const text = await res.text();
+      plans = parseCSV(text);
+    } catch (e) {
+      console.error("Could not load plans from Google Sheets:", e);
+    }
+    renderCalendar();
+  }
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -461,7 +481,7 @@
     renderCalendar();
   });
 
-  renderCalendar();
+  loadPlans();
 </script>
 
 </body>
