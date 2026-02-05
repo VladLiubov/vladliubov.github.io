@@ -398,8 +398,15 @@
       const res = await fetch(BIN_URL + "/latest", {
         headers: { "X-Master-Key": API_KEY }
       });
-      const data = await res.json();
-      plans = data.record.plans || [];
+      if (!res.ok) {
+        console.error("Load failed:", res.status, await res.text());
+        plans = [];
+      } else {
+        const data = await res.json();
+        const record = data.record || {};
+        plans = Array.isArray(record.plans) ? record.plans
+              : Array.isArray(record) ? record : [];
+      }
     } catch (e) {
       console.error("Could not load plans:", e);
       plans = [];
@@ -409,7 +416,7 @@
 
   async function savePlans() {
     try {
-      await fetch(BIN_URL, {
+      const res = await fetch(BIN_URL, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -417,9 +424,14 @@
         },
         body: JSON.stringify({ plans })
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Save failed:", res.status, errText);
+        alert("Failed to save: " + res.status);
+      }
     } catch (e) {
       console.error("Could not save plans:", e);
-      alert("Failed to save. Try again.");
+      alert("Failed to save. Check your connection.");
     }
   }
 
