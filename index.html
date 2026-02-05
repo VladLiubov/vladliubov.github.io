@@ -478,8 +478,9 @@
 </div>
 
 <script>
-  const BIN_ID = "698467a943b1c97be9672a51";
-  const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+  const SUPABASE_URL = "https://zvirwljtdqsgeenlvukd.supabase.co";
+  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2aXJ3bGp0ZHFzZ2Vlbmx2dWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNzY5MjYsImV4cCI6MjA4NTg1MjkyNn0.OKaxkXl3slq4Kx-xsDqT6XVP3ObbOeaxc1WowGJs7Ck";
+  const API_URL = SUPABASE_URL + "/rest/v1/plans";
 
   let plans = [];
   let isAdmin = false;
@@ -525,18 +526,20 @@
 
   initDarkMode();
 
-  // --- JSONBin API ---
+  // --- Supabase API ---
   async function loadPlans() {
     try {
-      const res = await fetch(BIN_URL + "/latest");
+      const res = await fetch(API_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
       if (!res.ok) {
         console.error("Load failed:", res.status, await res.text());
         plans = [];
       } else {
-        const data = await res.json();
-        const record = data.record || {};
-        plans = Array.isArray(record.plans) ? record.plans
-              : Array.isArray(record) ? record : [];
+        plans = await res.json();
       }
     } catch (e) {
       console.error("Could not load plans:", e);
@@ -545,24 +548,55 @@
     renderCalendar();
   }
 
-  async function savePlans() {
+  async function addPlan(plan) {
     try {
-      const res = await fetch(BIN_URL, {
-        method: "PUT",
+      const res = await fetch(API_URL, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Master-Key": adminKey
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey,
+          "Prefer": "return=representation"
         },
-        body: JSON.stringify({ plans })
+        body: JSON.stringify(plan)
       });
       if (!res.ok) {
         const errText = await res.text();
         console.error("Save failed:", res.status, errText);
         alert("Failed to save: " + res.status);
+        return false;
       }
+      const inserted = await res.json();
+      plans.push(inserted[0]);
+      return true;
     } catch (e) {
-      console.error("Could not save plans:", e);
+      console.error("Could not save plan:", e);
       alert("Failed to save. Check your connection.");
+      return false;
+    }
+  }
+
+  async function deletePlan(id) {
+    try {
+      const res = await fetch(API_URL + "?id=eq." + id, {
+        method: "DELETE",
+        headers: {
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey
+        }
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Delete failed:", res.status, errText);
+        alert("Failed to delete: " + res.status);
+        return false;
+      }
+      plans = plans.filter(p => p.id !== id);
+      return true;
+    } catch (e) {
+      console.error("Could not delete plan:", e);
+      alert("Failed to delete. Check your connection.");
+      return false;
     }
   }
 
@@ -649,9 +683,8 @@
     let html = "";
     dayPlans.forEach((p, idx) => {
       const sc = p.status === "for sure" ? "for-sure" : "maybe";
-      const planIndex = plans.indexOf(p);
       const deleteBtn = isAdmin
-        ? `<button class="delete-btn" data-index="${planIndex}">&times;</button>`
+        ? `<button class="delete-btn" data-id="${p.id}">&times;</button>`
         : "";
 
       let locationHtml = "";
@@ -680,10 +713,10 @@
     if (isAdmin) {
       list.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
-          const i = parseInt(btn.dataset.index);
-          plans.splice(i, 1);
-          await savePlans();
-          renderCalendar();
+          const id = parseInt(btn.dataset.id);
+          if (await deletePlan(id)) {
+            renderCalendar();
+          }
         });
       });
     }
@@ -764,12 +797,10 @@
     const plan = { date, activity, time, status };
     if (location) plan.location = location;
 
-    plans.push(plan);
-    plans.sort((a, b) => a.date.localeCompare(b.date));
-
     document.getElementById("modalOverlay").classList.remove("open");
-    renderCalendar();
-    await savePlans();
+    if (await addPlan(plan)) {
+      renderCalendar();
+    }
   });
 
   // --- Navigation ---
