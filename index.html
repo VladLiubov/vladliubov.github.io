@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>In touch with Vlad</title>
+  <title>In Touch With Vlad</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -118,7 +118,7 @@
 
     .day-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
     .dot.for-sure { background: #00b894; }
-    .dot.not-exactly { background: #fdcb6e; }
+    .dot.maybe { background: #fdcb6e; }
 
     .legend {
       display: flex;
@@ -168,7 +168,7 @@
     }
 
     .status-bar.for-sure { background: #00b894; }
-    .status-bar.not-exactly { background: #fdcb6e; }
+    .status-bar.maybe { background: #fdcb6e; }
 
     .activity-info { flex: 1; }
     .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -184,7 +184,7 @@
     }
 
     .status-badge.for-sure { background: #e6f9f1; color: #00b894; }
-    .status-badge.not-exactly { background: #fef9e7; color: #e17055; }
+    .status-badge.maybe { background: #fef9e7; color: #e17055; }
 
     .no-plans { text-align: center; color: #aaa; padding: 40px 0; font-size: 14px; }
 
@@ -315,7 +315,7 @@
 <body>
 
 <header>
-  <h1>In touch with Vlad</h1>
+  <h1>In Touch With Vlad</h1>
   <div class="month-nav">
     <button id="prevMonth">&#8249;</button>
     <span class="month-label" id="monthLabel"></span>
@@ -325,7 +325,7 @@
 
 <div class="legend">
   <div class="legend-item"><span class="dot for-sure"></span> for sure</div>
-  <div class="legend-item"><span class="dot not-exactly"></span> not exactly</div>
+  <div class="legend-item"><span class="dot maybe"></span> maybe</div>
 </div>
 
 <div class="weekdays">
@@ -353,7 +353,7 @@
     <label>Status</label>
     <select id="inputStatus">
       <option value="for sure">for sure</option>
-      <option value="not exactly">not exactly</option>
+      <option value="maybe">maybe</option>
     </select>
     <div class="modal-buttons">
       <button class="btn-cancel" id="btnCancel">Cancel</button>
@@ -475,7 +475,7 @@
       if (dayPlans.length > 0) {
         dots = '<div class="dot-row">';
         dayPlans.forEach(p => {
-          dots += `<span class="dot ${p.status === "for sure" ? "for-sure" : "not-exactly"}"></span>`;
+          dots += `<span class="dot ${p.status === "for sure" ? "for-sure" : "maybe"}"></span>`;
         });
         dots += "</div>";
       }
@@ -513,7 +513,7 @@
 
     let html = "";
     dayPlans.forEach((p, idx) => {
-      const sc = p.status === "for sure" ? "for-sure" : "not-exactly";
+      const sc = p.status === "for sure" ? "for-sure" : "maybe";
       const planIndex = plans.indexOf(p);
       const deleteBtn = isAdmin
         ? `<button class="delete-btn" data-index="${planIndex}">&times;</button>`
@@ -547,11 +547,6 @@
   // --- Admin / Add plan ---
   document.getElementById("fabBtn").addEventListener("click", () => {
     if (!isAdmin) {
-      const pw = prompt("Password:");
-      if (pw !== "Bestclimber") {
-        if (pw !== null) alert("Wrong password");
-        return;
-      }
       const key = prompt("Enter your API key:");
       if (!key) return;
       adminKey = key;
