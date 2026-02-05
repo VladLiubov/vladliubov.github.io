@@ -547,11 +547,6 @@
   // --- Admin / Add plan ---
   document.getElementById("fabBtn").addEventListener("click", () => {
     if (!isAdmin) {
-      const pw = prompt("Password:");
-      if (pw !== "Bestclimber") {
-        if (pw !== null) alert("Wrong password");
-        return;
-      }
       const key = prompt("Enter your API key:");
       if (!key) return;
       adminKey = key;
