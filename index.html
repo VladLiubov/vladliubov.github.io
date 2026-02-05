@@ -12,7 +12,56 @@
       background: #f0f2f5;
       color: #1a1a2e;
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
+
+    /* Dark mode */
+    body.dark {
+      background: #1a1a2e;
+      color: #e0e0e0;
+    }
+
+    body.dark header {
+      background: linear-gradient(135deg, #4a3d8f, #6c5ce7);
+    }
+
+    body.dark .weekdays,
+    body.dark .calendar-grid,
+    body.dark .legend {
+      background: #252547;
+      border-color: #333;
+    }
+
+    body.dark .weekdays span { color: #888; }
+
+    body.dark .day-cell { color: #e0e0e0; }
+    body.dark .day-cell.other-month { color: #555; }
+    body.dark .day-cell.selected { background: #2d2a5e; border-color: #6c5ce7; }
+
+    body.dark .activity-card {
+      background: #252547;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    body.dark .activity-info .activity-time { color: #999; }
+
+    body.dark .modal { background: #252547; }
+    body.dark .modal h2 { color: #e0e0e0; }
+    body.dark .modal label { color: #999; }
+    body.dark .modal input,
+    body.dark .modal select {
+      background: #1a1a2e;
+      border-color: #444;
+      color: #e0e0e0;
+    }
+    body.dark .modal input:focus,
+    body.dark .modal select:focus {
+      background: #2d2a5e;
+      border-color: #6c5ce7;
+    }
+    body.dark .btn-cancel { background: #333; color: #aaa; }
+    body.dark .no-plans { color: #666; }
+    body.dark .selected-date-label { color: #888; }
 
     header {
       background: linear-gradient(135deg, #6c5ce7, #a29bfe);
@@ -25,7 +74,31 @@
       box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
     }
 
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
     header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+
+    .dark-toggle {
+      position: absolute;
+      right: 0;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark-toggle:active { background: rgba(255,255,255,0.4); }
 
     .month-nav {
       display: flex;
@@ -53,6 +126,7 @@
     .month-nav .month-label {
       font-size: 16px; font-weight: 600;
       min-width: 160px; text-align: center;
+      cursor: pointer;
     }
 
     .weekdays {
@@ -64,6 +138,7 @@
       position: sticky;
       top: 88px;
       z-index: 9;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .weekdays span {
@@ -78,6 +153,8 @@
       background: #fff;
       gap: 1px;
       border-bottom: 1px solid #e0e0e0;
+      transition: background 0.3s, border-color 0.3s;
+      touch-action: pan-y;
     }
 
     .day-cell {
@@ -127,6 +204,7 @@
       padding: 10px 16px;
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .legend-item {
@@ -146,6 +224,7 @@
       margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      transition: color 0.3s;
     }
 
     .activity-card {
@@ -157,6 +236,7 @@
       display: flex;
       align-items: flex-start;
       gap: 12px;
+      transition: background 0.3s, box-shadow 0.3s;
     }
 
     .activity-card .status-bar {
@@ -172,7 +252,21 @@
 
     .activity-info { flex: 1; }
     .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-    .activity-info .activity-time { font-size: 13px; color: #666; }
+    .activity-info .activity-time { font-size: 13px; color: #666; transition: color 0.3s; }
+
+    .activity-info .activity-location {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .activity-info .activity-location a {
+      color: #6c5ce7;
+      text-decoration: none;
+    }
+
+    .activity-info .activity-location a:active {
+      text-decoration: underline;
+    }
 
     .activity-card .status-badge {
       font-size: 11px;
@@ -186,7 +280,19 @@
     .status-badge.for-sure { background: #e6f9f1; color: #00b894; }
     .status-badge.maybe { background: #fef9e7; color: #e17055; }
 
-    .no-plans { text-align: center; color: #aaa; padding: 40px 0; font-size: 14px; }
+    .no-plans {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    .no-plans .free-emoji {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+    }
 
     .delete-btn {
       background: none;
@@ -244,6 +350,7 @@
       width: 100%;
       max-width: 480px;
       animation: slideUp 0.25s ease-out;
+      transition: background 0.3s;
     }
 
     @keyframes slideUp {
@@ -256,6 +363,7 @@
       margin-bottom: 16px;
       text-align: center;
       color: #1a1a2e;
+      transition: color 0.3s;
     }
 
     .modal label {
@@ -265,6 +373,7 @@
       color: #888;
       margin-bottom: 4px;
       margin-top: 12px;
+      transition: color 0.3s;
     }
 
     .modal input, .modal select {
@@ -275,6 +384,7 @@
       font-size: 15px;
       font-family: inherit;
       background: #f8f8f8;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
 
     .modal input:focus, .modal select:focus {
@@ -300,7 +410,7 @@
       font-family: inherit;
     }
 
-    .btn-cancel { background: #f0f0f0; color: #666; }
+    .btn-cancel { background: #f0f0f0; color: #666; transition: background 0.3s, color 0.3s; }
     .btn-save { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
     .btn-save:active { opacity: 0.8; }
 
@@ -315,7 +425,10 @@
 <body>
 
 <header>
-  <h1>In Touch With Vlad</h1>
+  <div class="header-top">
+    <h1>In Touch With Vlad</h1>
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">&#9790;</button>
+  </div>
   <div class="month-nav">
     <button id="prevMonth">&#8249;</button>
     <span class="month-label" id="monthLabel"></span>
@@ -350,6 +463,8 @@
     <input type="text" id="inputActivity" placeholder="e.g. Climb in Sao Rock">
     <label>Time</label>
     <input type="text" id="inputTime" placeholder="e.g. from 16 to 19">
+    <label>Location (optional)</label>
+    <input type="text" id="inputLocation" placeholder="e.g. Pedra do Bau or Google Maps link">
     <label>Status</label>
     <select id="inputStatus">
       <option value="for sure">for sure</option>
@@ -390,6 +505,25 @@
   function getPlansForDate(dateStr) {
     return plans.filter(p => p.date === dateStr);
   }
+
+  function parseTimeStart(timeStr) {
+    const match = timeStr.match(/(\d{1,2})/);
+    return match ? parseInt(match[1]) : 99;
+  }
+
+  // --- Dark mode ---
+  function initDarkMode() {
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark");
+    }
+  }
+
+  document.getElementById("darkToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+  });
+
+  initDarkMode();
 
   // --- JSONBin API ---
   async function loadPlans() {
@@ -504,10 +638,11 @@
     const d = new Date(selectedDate + "T00:00:00");
     label.textContent = d.toLocaleDateString("en-US", { weekday:"long", day:"numeric", month:"long" });
 
-    const dayPlans = getPlansForDate(selectedDate);
+    const dayPlans = getPlansForDate(selectedDate)
+      .sort((a, b) => parseTimeStart(a.time) - parseTimeStart(b.time));
 
     if (dayPlans.length === 0) {
-      list.innerHTML = '<div class="no-plans">No plans for this day</div>';
+      list.innerHTML = '<div class="no-plans"><span class="free-emoji">&#127940;</span>Vlad is free!</div>';
       return;
     }
 
@@ -518,12 +653,22 @@
       const deleteBtn = isAdmin
         ? `<button class="delete-btn" data-index="${planIndex}">&times;</button>`
         : "";
+
+      let locationHtml = "";
+      if (p.location) {
+        const isUrl = p.location.startsWith("http");
+        locationHtml = isUrl
+          ? `<div class="activity-location"><a href="${p.location}" target="_blank" rel="noopener">&#128205; Open map</a></div>`
+          : `<div class="activity-location">&#128205; ${p.location}</div>`;
+      }
+
       html += `
         <div class="activity-card">
           <div class="status-bar ${sc}"></div>
           <div class="activity-info">
             <div class="activity-name">${p.activity}</div>
             <div class="activity-time">${p.time}</div>
+            ${locationHtml}
           </div>
           <span class="status-badge ${sc}">${p.status}</span>
           ${deleteBtn}
@@ -544,6 +689,39 @@
     }
   }
 
+  // --- Swipe gestures ---
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  const grid = document.getElementById("calendarGrid");
+
+  grid.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  grid.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 60) {
+      if (diff > 0) {
+        viewMonth++;
+        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      } else {
+        viewMonth--;
+        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      }
+      renderCalendar();
+    }
+  }, { passive: true });
+
+  // --- Tap month label to jump to today ---
+  document.getElementById("monthLabel").addEventListener("click", () => {
+    viewYear = today.getFullYear();
+    viewMonth = today.getMonth();
+    selectedDate = formatDate(today);
+    renderCalendar();
+  });
+
   // --- Admin / Add plan ---
   document.getElementById("fabBtn").addEventListener("click", () => {
     if (!isAdmin) {
@@ -556,6 +734,7 @@
     document.getElementById("inputDate").value = selectedDate;
     document.getElementById("inputActivity").value = "";
     document.getElementById("inputTime").value = "";
+    document.getElementById("inputLocation").value = "";
     document.getElementById("inputStatus").value = "for sure";
     document.getElementById("modalOverlay").classList.add("open");
   });
@@ -574,6 +753,7 @@
     const date = document.getElementById("inputDate").value;
     const activity = document.getElementById("inputActivity").value.trim();
     const time = document.getElementById("inputTime").value.trim();
+    const location = document.getElementById("inputLocation").value.trim();
     const status = document.getElementById("inputStatus").value;
 
     if (!date || !activity || !time) {
@@ -581,7 +761,10 @@
       return;
     }
 
-    plans.push({ date, activity, time, status });
+    const plan = { date, activity, time, status };
+    if (location) plan.location = location;
+
+    plans.push(plan);
     plans.sort((a, b) => a.date.localeCompare(b.date));
 
     document.getElementById("modalOverlay").classList.remove("open");
