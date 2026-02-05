@@ -363,13 +363,12 @@
 </div>
 
 <script>
-  const BIN_ID = "6983db1dae596e708f11d006";
-  const API_KEY = "$2a$10$I7TYHLP1RKdR/ls50FcKU.Qe703W5XW3Yy2O.VfPtKT/QVzj9S.R.";
+  const BIN_ID = "698467a943b1c97be9672a51";
   const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-  const ADMIN_PASSWORD = "vlad";
 
   let plans = [];
   let isAdmin = false;
+  let adminKey = "";
 
   const monthNames = [
     "January","February","March","April","May","June",
@@ -395,9 +394,7 @@
   // --- JSONBin API ---
   async function loadPlans() {
     try {
-      const res = await fetch(BIN_URL + "/latest", {
-        headers: { "X-Master-Key": API_KEY }
-      });
+      const res = await fetch(BIN_URL + "/latest");
       if (!res.ok) {
         console.error("Load failed:", res.status, await res.text());
         plans = [];
@@ -420,7 +417,7 @@
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-Master-Key": API_KEY
+          "X-Master-Key": adminKey
         },
         body: JSON.stringify({ plans })
       });
@@ -550,11 +547,9 @@
   // --- Admin / Add plan ---
   document.getElementById("fabBtn").addEventListener("click", () => {
     if (!isAdmin) {
-      const pw = prompt("Password:");
-      if (pw !== ADMIN_PASSWORD) {
-        if (pw !== null) alert("Wrong password");
-        return;
-      }
+      const key = prompt("Enter your API key:");
+      if (!key) return;
+      adminKey = key;
       isAdmin = true;
       renderActivities();
     }
