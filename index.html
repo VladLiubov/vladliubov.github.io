@@ -165,6 +165,10 @@
       cursor: pointer;
       border: 2px solid transparent;
       transition: background 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
 
     .day-cell.other-month { color: #ccc; }
@@ -175,7 +179,7 @@
       color: #fff;
       border-radius: 50%;
       width: 28px; height: 28px;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
     }
@@ -194,8 +198,11 @@
     }
 
     .day-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .dot.for-sure { background: #00b894; }
-    .dot.maybe { background: #fdcb6e; }
+    .dot.climbing { background: #e056fd; }
+    .dot.outdoor-climbing { background: #26de81; }
+    .dot.surf { background: #0984e3; }
+    .dot.ping-pong { background: #fd9644; }
+    .dot.other { background: #a0a0a0; }
 
     .legend {
       display: flex;
@@ -456,8 +463,10 @@
 </header>
 
 <div class="legend">
-  <div class="legend-item"><span class="dot for-sure"></span> for sure</div>
-  <div class="legend-item"><span class="dot maybe"></span> maybe</div>
+  <div class="legend-item"><span class="dot climbing"></span> climb</div>
+  <div class="legend-item"><span class="dot outdoor-climbing"></span> outdoor</div>
+  <div class="legend-item"><span class="dot surf"></span> surf</div>
+  <div class="legend-item"><span class="dot ping-pong"></span> ping pong</div>
 </div>
 
 <div class="weekdays">
@@ -670,7 +679,7 @@
       if (dayPlans.length > 0) {
         dots = '<div class="dot-row">';
         dayPlans.forEach(p => {
-          dots += `<span class="dot ${p.status === "for sure" ? "for-sure" : "maybe"}"></span>`;
+          dots += `<span class="dot ${p.activity_type || "other"}"></span>`;
         });
         dots += "</div>";
       }
