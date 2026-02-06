@@ -247,8 +247,11 @@
       align-self: stretch;
     }
 
-    .status-bar.for-sure { background: #00b894; }
-    .status-bar.maybe { background: #fdcb6e; }
+    .status-bar.climbing { background: #e056fd; }
+    .status-bar.outdoor-climbing { background: #26de81; }
+    .status-bar.surf { background: #0984e3; }
+    .status-bar.ping-pong { background: #fd9644; }
+    .status-bar.other { background: #a0a0a0; }
 
     .activity-info { flex: 1; }
     .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -477,6 +480,14 @@
     <input type="date" id="inputDate">
     <label>Activity</label>
     <input type="text" id="inputActivity" placeholder="e.g. Climb in Sao Rock">
+    <label>Type</label>
+    <select id="inputType">
+      <option value="climbing">Climbing</option>
+      <option value="outdoor-climbing">Outdoor Climbing</option>
+      <option value="surf">Surf</option>
+      <option value="ping-pong">Ping Pong</option>
+      <option value="other">Other</option>
+    </select>
     <label>Time</label>
     <div class="time-inputs">
       <input type="number" id="inputTimeFrom" placeholder="From" min="0" max="24">
@@ -528,9 +539,9 @@
   }
 
 
-  // --- Dark mode ---
+  // --- Dark mode (default: on) ---
   function initDarkMode() {
-    if (localStorage.getItem("darkMode") === "true") {
+    if (localStorage.getItem("darkMode") !== "false") {
       document.body.classList.add("dark");
     }
   }
@@ -698,7 +709,8 @@
 
     let html = "";
     dayPlans.forEach((p, idx) => {
-      const sc = p.status === "for sure" ? "for-sure" : "maybe";
+      const typeClass = p.activity_type || "other";
+      const statusClass = p.status === "for sure" ? "for-sure" : "maybe";
       const deleteBtn = isAdmin
         ? `<button class="delete-btn" data-id="${p.id}">&times;</button>`
         : "";
@@ -713,13 +725,13 @@
 
       html += `
         <div class="activity-card">
-          <div class="status-bar ${sc}"></div>
+          <div class="status-bar ${typeClass}"></div>
           <div class="activity-info">
             <div class="activity-name">${p.activity}</div>
             <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
             ${locationHtml}
           </div>
-          <span class="status-badge ${sc}">${p.status}</span>
+          <span class="status-badge ${statusClass}">${p.status}</span>
           ${deleteBtn}
         </div>`;
     });
@@ -782,6 +794,7 @@
     }
     document.getElementById("inputDate").value = selectedDate;
     document.getElementById("inputActivity").value = "";
+    document.getElementById("inputType").value = "climbing";
     document.getElementById("inputTimeFrom").value = "";
     document.getElementById("inputTimeTo").value = "";
     document.getElementById("inputLocation").value = "";
@@ -802,6 +815,7 @@
   document.getElementById("btnSave").addEventListener("click", async () => {
     const date = document.getElementById("inputDate").value;
     const activity = document.getElementById("inputActivity").value.trim();
+    const activity_type = document.getElementById("inputType").value;
     const time_from = parseInt(document.getElementById("inputTimeFrom").value);
     const time_to = parseInt(document.getElementById("inputTimeTo").value);
     const location = document.getElementById("inputLocation").value.trim();
@@ -812,7 +826,7 @@
       return;
     }
 
-    const plan = { date, activity, time_from, time_to, status };
+    const plan = { date, activity, activity_type, time_from, time_to, status };
     if (location) plan.location = location;
 
     document.getElementById("modalOverlay").classList.remove("open");
