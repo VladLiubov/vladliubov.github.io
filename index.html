@@ -393,6 +393,22 @@
       background: #fff;
     }
 
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-inputs input {
+      flex: 1;
+      text-align: center;
+    }
+
+    .time-inputs span {
+      color: #888;
+      font-size: 14px;
+    }
+
     .modal-buttons {
       display: flex;
       gap: 10px;
@@ -462,7 +478,11 @@
     <label>Activity</label>
     <input type="text" id="inputActivity" placeholder="e.g. Climb in Sao Rock">
     <label>Time</label>
-    <input type="text" id="inputTime" placeholder="e.g. from 16 to 19">
+    <div class="time-inputs">
+      <input type="number" id="inputTimeFrom" placeholder="From" min="0" max="24">
+      <span>to</span>
+      <input type="number" id="inputTimeTo" placeholder="To" min="0" max="24">
+    </div>
     <label>Location (optional)</label>
     <input type="text" id="inputLocation" placeholder="e.g. Pedra do Bau or Google Maps link">
     <label>Status</label>
@@ -507,10 +527,6 @@
     return plans.filter(p => p.date === dateStr);
   }
 
-  function parseTimeStart(timeStr) {
-    const match = timeStr.match(/(\d{1,2})/);
-    return match ? parseInt(match[1]) : 99;
-  }
 
   // --- Dark mode ---
   function initDarkMode() {
@@ -673,7 +689,7 @@
     label.textContent = d.toLocaleDateString("en-US", { weekday:"long", day:"numeric", month:"long" });
 
     const dayPlans = getPlansForDate(selectedDate)
-      .sort((a, b) => parseTimeStart(a.time) - parseTimeStart(b.time));
+      .sort((a, b) => (a.time_from || 0) - (b.time_from || 0));
 
     if (dayPlans.length === 0) {
       list.innerHTML = '<div class="no-plans"><span class="free-emoji">&#127940;</span>Vlad is free!</div>';
@@ -700,7 +716,7 @@
           <div class="status-bar ${sc}"></div>
           <div class="activity-info">
             <div class="activity-name">${p.activity}</div>
-            <div class="activity-time">${p.time}</div>
+            <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
             ${locationHtml}
           </div>
           <span class="status-badge ${sc}">${p.status}</span>
@@ -766,7 +782,8 @@
     }
     document.getElementById("inputDate").value = selectedDate;
     document.getElementById("inputActivity").value = "";
-    document.getElementById("inputTime").value = "";
+    document.getElementById("inputTimeFrom").value = "";
+    document.getElementById("inputTimeTo").value = "";
     document.getElementById("inputLocation").value = "";
     document.getElementById("inputStatus").value = "for sure";
     document.getElementById("modalOverlay").classList.add("open");
@@ -785,16 +802,17 @@
   document.getElementById("btnSave").addEventListener("click", async () => {
     const date = document.getElementById("inputDate").value;
     const activity = document.getElementById("inputActivity").value.trim();
-    const time = document.getElementById("inputTime").value.trim();
+    const time_from = parseInt(document.getElementById("inputTimeFrom").value);
+    const time_to = parseInt(document.getElementById("inputTimeTo").value);
     const location = document.getElementById("inputLocation").value.trim();
     const status = document.getElementById("inputStatus").value;
 
-    if (!date || !activity || !time) {
+    if (!date || !activity || isNaN(time_from) || isNaN(time_to)) {
       alert("Please fill in all fields");
       return;
     }
 
-    const plan = { date, activity, time, status };
+    const plan = { date, activity, time_from, time_to, status };
     if (location) plan.location = location;
 
     document.getElementById("modalOverlay").classList.remove("open");
