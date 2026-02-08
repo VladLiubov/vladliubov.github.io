@@ -318,6 +318,42 @@
 
     .delete-btn:active { color: #e74c3c; background: #fee; }
 
+    .join-btn {
+      background: linear-gradient(135deg, #00b894, #55efc4);
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: center;
+      transition: opacity 0.2s;
+    }
+
+    .join-btn:active { opacity: 0.7; }
+
+    .participants {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .participants span {
+      display: inline-block;
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+
+    body.dark .participants span {
+      background: #333;
+      color: #ccc;
+    }
+
     /* Modal overlay */
     .modal-overlay {
       display: none;
@@ -493,14 +529,35 @@
   </div>
 </div>
 
+<!-- Join Modal -->
+<div class="modal-overlay" id="joinModalOverlay">
+  <div class="modal">
+    <h2>Join this plan</h2>
+    <label>Your name</label>
+    <select id="selectName">
+      <option value="">-- Select or add new --</option>
+    </select>
+    <input type="text" id="inputNewName" placeholder="Or type a new name" style="margin-top: 10px;">
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="btnJoinCancel">Cancel</button>
+      <button class="btn-save" id="btnJoinSave">Join</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = "https://zvirwljtdqsgeenlvukd.supabase.co";
   const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2aXJ3bGp0ZHFzZ2Vlbmx2dWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNzY5MjYsImV4cCI6MjA4NTg1MjkyNn0.OKaxkXl3slq4Kx-xsDqT6XVP3ObbOeaxc1WowGJs7Ck";
   const API_URL = SUPABASE_URL + "/rest/v1/plans";
+  const NAMES_URL = SUPABASE_URL + "/rest/v1/names";
+  const PARTICIPANTS_URL = SUPABASE_URL + "/rest/v1/plan_participants";
 
   let plans = [];
+  let names = [];
+  let participants = [];
   let isAdmin = false;
   let adminKey = "";
+  let currentJoinPlanId = null;
 
   const monthNames = [
     "January","February","March","April","May","June",
@@ -612,6 +669,89 @@
     }
   }
 
+  // --- Names & Participants ---
+  async function loadNames() {
+    try {
+      const res = await fetch(NAMES_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        names = await res.json();
+      }
+    } catch (e) {
+      console.error("Could not load names:", e);
+    }
+  }
+
+  async function loadParticipants() {
+    try {
+      const res = await fetch(PARTICIPANTS_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        participants = await res.json();
+      }
+    } catch (e) {
+      console.error("Could not load participants:", e);
+    }
+  }
+
+  async function addName(name) {
+    try {
+      const res = await fetch(NAMES_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({ name })
+      });
+      if (res.ok) {
+        const inserted = await res.json();
+        names.push(inserted[0]);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not save name:", e);
+    }
+    return false;
+  }
+
+  async function joinPlan(planId, name) {
+    try {
+      const res = await fetch(PARTICIPANTS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({ plan_id: planId, name })
+      });
+      if (res.ok) {
+        const inserted = await res.json();
+        participants.push(inserted[0]);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not join plan:", e);
+    }
+    return false;
+  }
+
+  function getParticipantsForPlan(planId) {
+    return participants.filter(p => p.plan_id === planId);
+  }
+
   // --- Calendar ---
   function renderCalendar() {
     const grid = document.getElementById("calendarGrid");
@@ -708,6 +848,14 @@
           : `<div class="activity-location">&#128205; ${p.location}</div>`;
       }
 
+      const planParticipants = getParticipantsForPlan(p.id);
+      let participantsHtml = "";
+      if (planParticipants.length > 0) {
+        participantsHtml = '<div class="participants">' +
+          planParticipants.map(pt => `<span>${pt.name}</span>`).join("") +
+          '</div>';
+      }
+
       html += `
         <div class="activity-card">
           <div class="status-bar ${typeClass}"></div>
@@ -715,7 +863,9 @@
             <div class="activity-name">${p.activity}</div>
             <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
             ${locationHtml}
+            ${participantsHtml}
           </div>
+          <button class="join-btn" data-plan-id="${p.id}">Join</button>
           <span class="status-badge ${statusClass}">${p.status}</span>
           ${deleteBtn}
         </div>`;
@@ -733,6 +883,24 @@
         });
       });
     }
+
+    // Join button handlers
+    list.querySelectorAll(".join-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentJoinPlanId = parseInt(btn.dataset.planId);
+        openJoinModal();
+      });
+    });
+  }
+
+  function openJoinModal() {
+    const select = document.getElementById("selectName");
+    select.innerHTML = '<option value="">-- Select or add new --</option>';
+    names.forEach(n => {
+      select.innerHTML += `<option value="${n.name}">${n.name}</option>`;
+    });
+    document.getElementById("inputNewName").value = "";
+    document.getElementById("joinModalOverlay").classList.add("open");
   }
 
   // --- Swipe gestures ---
@@ -820,6 +988,46 @@
     }
   });
 
+  // --- Join modal handlers ---
+  document.getElementById("btnJoinCancel").addEventListener("click", () => {
+    document.getElementById("joinModalOverlay").classList.remove("open");
+  });
+
+  document.getElementById("joinModalOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById("joinModalOverlay").classList.remove("open");
+    }
+  });
+
+  document.getElementById("btnJoinSave").addEventListener("click", async () => {
+    const selectedName = document.getElementById("selectName").value;
+    const newName = document.getElementById("inputNewName").value.trim();
+
+    let name = selectedName || newName;
+    if (!name) {
+      alert("Please select or enter a name");
+      return;
+    }
+
+    // Check if already joined
+    const existing = participants.find(p => p.plan_id === currentJoinPlanId && p.name === name);
+    if (existing) {
+      alert("You already joined this plan!");
+      document.getElementById("joinModalOverlay").classList.remove("open");
+      return;
+    }
+
+    // If new name, save it to names table
+    if (newName && !names.find(n => n.name === newName)) {
+      await addName(newName);
+    }
+
+    document.getElementById("joinModalOverlay").classList.remove("open");
+    if (await joinPlan(currentJoinPlanId, name)) {
+      renderActivities();
+    }
+  });
+
   // --- Navigation ---
   document.getElementById("prevMonth").addEventListener("click", () => {
     viewMonth--;
@@ -833,7 +1041,10 @@
     renderCalendar();
   });
 
-  loadPlans();
+  async function init() {
+    await Promise.all([loadPlans(), loadNames(), loadParticipants()]);
+  }
+  init();
 </script>
 
 </body>
