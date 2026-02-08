@@ -318,28 +318,6 @@
 
     .delete-btn:active { color: #e74c3c; background: #fee; }
 
-    /* Floating add button */
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-      color: #fff;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(108,92,231,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      transition: transform 0.2s;
-    }
-
-    .fab:active { transform: scale(0.9); }
-
     /* Modal overlay */
     .modal-overlay {
       display: none;
@@ -452,7 +430,7 @@
 
 <header>
   <div class="header-top">
-    <h1>In Touch With Vlad</h1>
+    <h1 id="titleBtn">In Touch With Vlad</h1>
     <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">&#9790;</button>
   </div>
   <div class="month-nav">
@@ -479,8 +457,6 @@
   <div class="selected-date-label" id="selectedDateLabel"></div>
   <div id="activitiesList"><div class="loading">Loading plans...</div></div>
 </div>
-
-<button class="fab" id="fabBtn">+</button>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -792,8 +768,8 @@
     renderCalendar();
   });
 
-  // --- Admin / Add plan ---
-  document.getElementById("fabBtn").addEventListener("click", () => {
+  // --- Admin / Add plan (click title to access) ---
+  document.getElementById("titleBtn").addEventListener("click", () => {
     if (!isAdmin) {
       const key = prompt("Enter your API key:");
       if (!key) return;
