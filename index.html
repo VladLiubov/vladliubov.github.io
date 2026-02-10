@@ -171,6 +171,13 @@
       justify-content: flex-start;
     }
 
+    .day-cell .day-number {
+      width: 28px; height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .day-cell.other-month { color: #ccc; }
     .day-cell.today { font-weight: 700; color: #6c5ce7; }
 
@@ -178,10 +185,6 @@
       background: #6c5ce7;
       color: #fff;
       border-radius: 50%;
-      width: 28px; height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .day-cell.selected {
@@ -800,8 +803,7 @@
         dots += "</div>";
       }
 
-      const numHtml = classes.includes("today")
-        ? `<span class="day-number">${dayNum}</span>` : `${dayNum}`;
+      const numHtml = `<span class="day-number">${dayNum}</span>`;
 
       cells += `<div class="day-cell ${classes.join(" ")}" data-date="${dateStr}">${numHtml}${dots}</div>`;
     }
