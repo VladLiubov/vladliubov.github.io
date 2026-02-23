@@ -309,7 +309,7 @@
     }
 
     .status-badge.for-sure { background: #e6f9f1; color: #00b894; }
-    .status-badge.maybe { background: #fef9e7; color: #e17055; }
+    .status-badge.planning { background: #fef9e7; color: #e17055; }
 
     .no-plans {
       text-align: center;
@@ -581,7 +581,7 @@
     <label>Status</label>
     <select id="inputStatus">
       <option value="for sure">for sure</option>
-      <option value="maybe">maybe</option>
+      <option value="planning">planning</option>
     </select>
     <div class="modal-buttons">
       <button class="btn-cancel" id="btnCancel">Cancel</button>
@@ -872,7 +872,7 @@
       html += `<div class="bulk-date-group"><h3>${label}</h3>`;
       groups[dateStr].forEach((p, idx) => {
         const typeClass = p.activity_type || "other";
-        const statusClass = p.status === "for sure" ? "for-sure" : "maybe";
+        const statusClass = p.status === "for sure" ? "for-sure" : "planning";
         const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
         const planParticipants = getParticipantsForPlan(p.id);
         let participantsHtml = "";
@@ -996,7 +996,7 @@
     let html = "";
     dayPlans.forEach((p, idx) => {
       const typeClass = p.activity_type || "other";
-      const statusClass = p.status === "for sure" ? "for-sure" : "maybe";
+      const statusClass = p.status === "for sure" ? "for-sure" : "planning";
       const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
       const deleteBtn = isAdmin
         ? `<button class="delete-btn" data-id="${p.id}">&times;</button>`
