@@ -619,7 +619,7 @@
   let isAdmin = false;
   let adminKey = "";
   let currentJoinPlanId = null;
-  let isListView = false;
+  let isListView = true;
 
   const ACTIVITY_ICONS = {
     "climbing": "🧗",
@@ -1249,6 +1249,25 @@
 
   async function init() {
     await Promise.all([loadPlans(), loadNames(), loadParticipants()]);
+    // Default to list view
+    if (isListView) {
+      const btn = document.getElementById("listToggle");
+      const calendarPanel = document.getElementById("calendarPanel");
+      const bulkView = document.getElementById("bulkView");
+      const calendarGrid = document.getElementById("calendarGrid");
+      const weekdays = document.querySelector(".weekdays");
+      const legend = document.querySelector(".legend");
+      const monthNav = document.querySelector(".month-nav");
+      btn.innerHTML = "&#128197;";
+      btn.title = "Calendar view";
+      calendarGrid.style.display = "none";
+      weekdays.style.display = "none";
+      legend.style.display = "none";
+      monthNav.style.display = "none";
+      calendarPanel.style.display = "none";
+      bulkView.classList.add("open");
+      renderBulkView();
+    }
   }
   init();
 </script>
