@@ -505,6 +505,20 @@
 
     .repeat-btn:active { color: #6c5ce7; background: #f0edff; }
 
+    .edit-btn {
+      background: none;
+      border: none;
+      color: #a29bfe;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 6px;
+      align-self: center;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .edit-btn:active { color: #6c5ce7; background: #f0edff; }
+
     .bulk-view { display: none; padding: 12px 16px 100px; }
     .bulk-view.open { display: block; }
 
@@ -619,6 +633,7 @@
   let isAdmin = false;
   let adminKey = "";
   let currentJoinPlanId = null;
+  let editingPlanId = null;
   let isListView = true;
 
   const ACTIVITY_ICONS = {
@@ -734,6 +749,32 @@
     } catch (e) {
       console.error("Could not delete plan:", e);
       alert("Failed to delete. Check your connection.");
+      return false;
+    }
+  }
+
+  async function updatePlan(id, plan) {
+    try {
+      const res = await fetch(API_URL + "?id=eq." + id, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(plan)
+      });
+      if (!res.ok) {
+        alert("Failed to update: " + res.status);
+        return false;
+      }
+      const updated = await res.json();
+      const idx = plans.findIndex(p => p.id === id);
+      if (idx !== -1) plans[idx] = updated[0];
+      return true;
+    } catch (e) {
+      alert("Failed to update. Check your connection.");
       return false;
     }
   }
@@ -1004,6 +1045,9 @@
       const repeatBtn = isAdmin
         ? `<button class="repeat-btn" data-id="${p.id}" title="Copy to next week">&#8635;</button>`
         : "";
+      const editBtn = isAdmin
+        ? `<button class="edit-btn" data-id="${p.id}" title="Edit">&#9998;</button>`
+        : "";
 
       let locationHtml = "";
       if (p.location) {
@@ -1032,6 +1076,7 @@
           </div>
           <button class="join-btn" data-plan-id="${p.id}">Join</button>
           <span class="status-badge ${statusClass}">${p.status}</span>
+          ${editBtn}
           ${repeatBtn}
           ${deleteBtn}
         </div>`;
@@ -1055,6 +1100,13 @@
           await repeatPlan(id);
         });
       });
+
+      list.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = parseInt(btn.dataset.id);
+          openEditModal(id);
+        });
+      });
     }
 
     // Join button handlers
@@ -1064,6 +1116,21 @@
         openJoinModal();
       });
     });
+  }
+
+  function openEditModal(id) {
+    const p = plans.find(pl => pl.id === id);
+    if (!p) return;
+    editingPlanId = id;
+    document.querySelector("#modalOverlay h2").textContent = "Edit plan";
+    document.getElementById("inputDate").value = p.date;
+    document.getElementById("inputActivity").value = p.activity;
+    document.getElementById("inputType").value = p.activity_type || "other";
+    document.getElementById("inputTimeFrom").value = p.time_from;
+    document.getElementById("inputTimeTo").value = p.time_to;
+    document.getElementById("inputLocation").value = p.location || "";
+    document.getElementById("inputStatus").value = p.status;
+    document.getElementById("modalOverlay").classList.add("open");
   }
 
   function openJoinModal() {
@@ -1151,6 +1218,8 @@
       isAdmin = true;
       renderActivities();
     }
+    editingPlanId = null;
+    document.querySelector("#modalOverlay h2").textContent = "Add plan";
     document.getElementById("inputDate").value = selectedDate;
     document.getElementById("inputActivity").value = "";
     document.getElementById("inputType").value = "climbing";
@@ -1162,6 +1231,7 @@
   });
 
   document.getElementById("btnCancel").addEventListener("click", () => {
+    editingPlanId = null;
     document.getElementById("modalOverlay").classList.remove("open");
   });
 
@@ -1189,8 +1259,19 @@
     if (location) plan.location = location;
 
     document.getElementById("modalOverlay").classList.remove("open");
-    if (await addPlan(plan)) {
-      renderCalendar();
+
+    if (editingPlanId) {
+      const id = editingPlanId;
+      editingPlanId = null;
+      if (await updatePlan(id, plan)) {
+        selectedDate = date;
+        isListView ? renderBulkView() : renderCalendar();
+      }
+    } else {
+      if (await addPlan(plan)) {
+        selectedDate = date;
+        isListView ? renderBulkView() : renderCalendar();
+      }
     }
   });
 
