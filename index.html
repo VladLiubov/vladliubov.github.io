@@ -104,7 +104,7 @@
 
     .list-toggle:active { background: rgba(255,255,255,0.4); }
 
-    .dark-toggle {
+    .info-toggle {
       position: absolute;
       right: 0;
       background: rgba(255,255,255,0.2);
@@ -112,14 +112,65 @@
       color: #fff;
       width: 36px; height: 36px;
       border-radius: 50%;
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .dark-toggle:active { background: rgba(255,255,255,0.4); }
+    .info-toggle:active { background: rgba(255,255,255,0.4); }
+
+    .info-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #252547;
+      color: #e0e0e0;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 320px;
+      text-align: center;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: none;
+    }
+
+    .info-popup.open { display: block; }
+
+    .info-popup h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #a29bfe;
+    }
+
+    .info-popup p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .info-popup button {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      border: none;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .info-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+      display: none;
+    }
+
+    .info-overlay.open { display: block; }
 
     .month-nav {
       display: flex;
@@ -549,7 +600,7 @@
   <div class="header-top">
     <button class="list-toggle" id="listToggle" title="List view">&#9776;</button>
     <h1 id="titleBtn">In Touch With Vlad</h1>
-    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">&#9790;</button>
+    <button class="info-toggle" id="infoToggle" title="Info">&#9432;</button>
   </div>
   <div class="month-nav">
     <button id="prevMonth">&#8249;</button>
@@ -557,6 +608,13 @@
     <button id="nextMonth">&#8250;</button>
   </div>
 </header>
+
+<div class="info-overlay" id="infoOverlay"></div>
+<div class="info-popup" id="infoPopup">
+  <h3>About</h3>
+  <p>Vlad updates information about the next week every Sunday. Check back regularly to see what's planned!</p>
+  <button id="closeInfo">Got it</button>
+</div>
 
 <div class="legend">
   <div class="legend-item"><span class="dot climbing"></span> climb</div>
@@ -715,19 +773,24 @@
   }
 
 
-  // --- Dark mode (default: on) ---
-  function initDarkMode() {
-    if (localStorage.getItem("darkMode") !== "false") {
-      document.body.classList.add("dark");
-    }
-  }
+  // --- Dark mode (always on) ---
+  document.body.classList.add("dark");
 
-  document.getElementById("darkToggle").addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+  // --- Info popup ---
+  document.getElementById("infoToggle").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.add("open");
+    document.getElementById("infoPopup").classList.add("open");
   });
 
-  initDarkMode();
+  document.getElementById("closeInfo").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.remove("open");
+    document.getElementById("infoPopup").classList.remove("open");
+  });
+
+  document.getElementById("infoOverlay").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.remove("open");
+    document.getElementById("infoPopup").classList.remove("open");
+  });
 
   // --- Supabase API ---
   async function loadPlans() {
