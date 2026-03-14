@@ -44,6 +44,7 @@
     }
 
     body.dark .activity-info .activity-time { color: #999; }
+    body.dark .activity-info .activity-weather { color: #55efc4; }
 
     body.dark .modal { background: #252547; }
     body.dark .modal h2 { color: #e0e0e0; }
@@ -284,6 +285,12 @@
     .activity-info { flex: 1; }
     .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .activity-info .activity-time { font-size: 13px; color: #666; transition: color 0.3s; }
+
+    .activity-info .activity-weather {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #0984e3;
+    }
 
     .activity-info .activity-location {
       font-size: 12px;
@@ -643,6 +650,49 @@
     "other": "📅"
   };
 
+  // Weather for outdoor activities (using Open-Meteo free API)
+  const OUTDOOR_TYPES = ["outdoor-climbing", "surf"];
+  const WEATHER_LOCATION = { lat: -22.75, lon: -45.58 }; // Near São Paulo
+  let weatherCache = {};
+
+  const WEATHER_ICONS = {
+    0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+    45: "🌫️", 48: "🌫️",
+    51: "🌧️", 53: "🌧️", 55: "🌧️",
+    61: "🌧️", 63: "🌧️", 65: "🌧️",
+    71: "🌨️", 73: "🌨️", 75: "🌨️",
+    80: "🌦️", 81: "🌦️", 82: "🌦️",
+    95: "⛈️", 96: "⛈️", 99: "⛈️"
+  };
+
+  async function fetchWeather(dateStr) {
+    if (weatherCache[dateStr]) return weatherCache[dateStr];
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LOCATION.lat}&longitude=${WEATHER_LOCATION.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.daily && data.daily.time && data.daily.time[0] === dateStr) {
+        const w = {
+          code: data.daily.weather_code[0],
+          tempMax: Math.round(data.daily.temperature_2m_max[0]),
+          tempMin: Math.round(data.daily.temperature_2m_min[0])
+        };
+        weatherCache[dateStr] = w;
+        return w;
+      }
+    } catch (e) {
+      console.error("Weather fetch failed:", e);
+    }
+    return null;
+  }
+
+  function getWeatherHtml(weather) {
+    if (!weather) return "";
+    const icon = WEATHER_ICONS[weather.code] || "🌡️";
+    return `<div class="activity-weather">${icon} ${weather.tempMin}°–${weather.tempMax}°C</div>`;
+  }
+
   const monthNames = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
@@ -929,12 +979,14 @@
             ? `<div class="activity-location"><a href="${p.location}" target="_blank" rel="noopener">&#128205; Open map</a></div>`
             : `<div class="activity-location">&#128205; ${p.location}</div>`;
         }
+        const isOutdoor = OUTDOOR_TYPES.includes(p.activity_type);
         html += `
-          <div class="activity-card" style="animation-delay:${idx * 0.06}s">
+          <div class="activity-card" style="animation-delay:${idx * 0.06}s" ${isOutdoor ? `data-weather-date="${dateStr}"` : ""}>
             <div class="status-bar ${typeClass}"></div>
             <div class="activity-info">
               <div class="activity-name">${icon} ${p.activity}</div>
               <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
+              ${isOutdoor ? '<div class="activity-weather" data-weather-slot></div>' : ''}
               ${locationHtml}
               ${participantsHtml}
             </div>
@@ -953,6 +1005,23 @@
         openJoinModal();
       });
     });
+
+    // Load weather for outdoor activities
+    loadWeatherForCards(container);
+  }
+
+  async function loadWeatherForCards(container) {
+    const cards = container.querySelectorAll("[data-weather-date]");
+    const dates = [...new Set([...cards].map(c => c.dataset.weatherDate))];
+    for (const dateStr of dates) {
+      const weather = await fetchWeather(dateStr);
+      if (weather) {
+        container.querySelectorAll(`[data-weather-date="${dateStr}"] [data-weather-slot]`).forEach(slot => {
+          const icon = WEATHER_ICONS[weather.code] || "🌡️";
+          slot.textContent = `${icon} ${weather.tempMin}°–${weather.tempMax}°C`;
+        });
+      }
+    }
   }
 
   // --- Calendar ---
@@ -1065,12 +1134,14 @@
           '</div>';
       }
 
+      const isOutdoor = OUTDOOR_TYPES.includes(p.activity_type);
       html += `
-        <div class="activity-card" style="animation-delay:${idx * 0.06}s">
+        <div class="activity-card" style="animation-delay:${idx * 0.06}s" ${isOutdoor ? `data-weather-date="${selectedDate}"` : ""}>
           <div class="status-bar ${typeClass}"></div>
           <div class="activity-info">
             <div class="activity-name">${icon} ${p.activity}</div>
             <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
+            ${isOutdoor ? '<div class="activity-weather" data-weather-slot></div>' : ''}
             ${locationHtml}
             ${participantsHtml}
           </div>
@@ -1083,6 +1154,9 @@
     });
 
     list.innerHTML = html;
+
+    // Load weather for outdoor activities
+    loadWeatherForCards(list);
 
     if (isAdmin) {
       list.querySelectorAll(".delete-btn").forEach(btn => {
