@@ -357,17 +357,6 @@
       text-decoration: underline;
     }
 
-    .activity-card .status-badge {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-weight: 600;
-      white-space: nowrap;
-      align-self: center;
-    }
-
-    .status-badge.for-sure { background: #e6f9f1; color: #00b894; }
-    .status-badge.planning { background: #fef9e7; color: #e17055; }
 
     .no-plans {
       text-align: center;
@@ -657,11 +646,6 @@
     </div>
     <label>Location (optional)</label>
     <input type="text" id="inputLocation" placeholder="e.g. Pedra do Bau or Google Maps link">
-    <label>Status</label>
-    <select id="inputStatus">
-      <option value="for sure">for sure</option>
-      <option value="planning">planning</option>
-    </select>
     <div class="modal-buttons">
       <button class="btn-cancel" id="btnCancel">Cancel</button>
       <button class="btn-save" id="btnSave">Save</button>
@@ -985,8 +969,7 @@
       activity: original.activity,
       activity_type: original.activity_type,
       time_from: original.time_from,
-      time_to: original.time_to,
-      status: original.status
+      time_to: original.time_to
     };
     if (original.location) newPlan.location = original.location;
     if (await addPlan(newPlan)) {
@@ -1026,7 +1009,6 @@
       html += `<div class="bulk-date-group"><h3>${label}</h3>`;
       groups[dateStr].forEach((p, idx) => {
         const typeClass = p.activity_type || "other";
-        const statusClass = p.status === "for sure" ? "for-sure" : "planning";
         const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
         const planParticipants = getParticipantsForPlan(p.id);
         let participantsHtml = "";
@@ -1054,7 +1036,6 @@
               ${participantsHtml}
             </div>
             <button class="join-btn" data-plan-id="${p.id}">Join</button>
-            <span class="status-badge ${statusClass}">${p.status}</span>
           </div>`;
       });
       html += `</div>`;
@@ -1169,7 +1150,6 @@
     let html = "";
     dayPlans.forEach((p, idx) => {
       const typeClass = p.activity_type || "other";
-      const statusClass = p.status === "for sure" ? "for-sure" : "planning";
       const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
       const deleteBtn = isAdmin
         ? `<button class="delete-btn" data-id="${p.id}">&times;</button>`
@@ -1209,7 +1189,6 @@
             ${participantsHtml}
           </div>
           <button class="join-btn" data-plan-id="${p.id}">Join</button>
-          <span class="status-badge ${statusClass}">${p.status}</span>
           ${editBtn}
           ${repeatBtn}
           ${deleteBtn}
@@ -1266,7 +1245,6 @@
     document.getElementById("inputTimeFrom").value = p.time_from;
     document.getElementById("inputTimeTo").value = p.time_to;
     document.getElementById("inputLocation").value = p.location || "";
-    document.getElementById("inputStatus").value = p.status;
     document.getElementById("modalOverlay").classList.add("open");
   }
 
@@ -1363,7 +1341,6 @@
     document.getElementById("inputTimeFrom").value = "";
     document.getElementById("inputTimeTo").value = "";
     document.getElementById("inputLocation").value = "";
-    document.getElementById("inputStatus").value = "for sure";
     document.getElementById("modalOverlay").classList.add("open");
   });
 
@@ -1385,14 +1362,13 @@
     const time_from = parseInt(document.getElementById("inputTimeFrom").value);
     const time_to = parseInt(document.getElementById("inputTimeTo").value);
     const location = document.getElementById("inputLocation").value.trim();
-    const status = document.getElementById("inputStatus").value;
 
     if (!date || !activity || isNaN(time_from) || isNaN(time_to)) {
       alert("Please fill in all fields");
       return;
     }
 
-    const plan = { date, activity, activity_type, time_from, time_to, status };
+    const plan = { date, activity, activity_type, time_from, time_to };
     if (location) plan.location = location;
 
     document.getElementById("modalOverlay").classList.remove("open");
