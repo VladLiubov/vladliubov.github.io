@@ -662,6 +662,12 @@
       <option value="">-- Select or add new --</option>
     </select>
     <input type="text" id="inputNewName" placeholder="Or type a new name" style="margin-top: 10px;">
+    <label>Your time (optional)</label>
+    <div class="time-inputs">
+      <input type="number" id="joinTimeFrom" placeholder="From" min="0" max="24">
+      <span>to</span>
+      <input type="number" id="joinTimeTo" placeholder="To" min="0" max="24">
+    </div>
     <div class="modal-buttons">
       <button class="btn-cancel" id="btnJoinCancel">Cancel</button>
       <button class="btn-save" id="btnJoinSave">Join</button>
@@ -932,8 +938,11 @@
     return false;
   }
 
-  async function joinPlan(planId, name) {
+  async function joinPlan(planId, name, timeFrom, timeTo) {
     try {
+      const data = { plan_id: planId, name };
+      if (timeFrom !== null) data.time_from = timeFrom;
+      if (timeTo !== null) data.time_to = timeTo;
       const res = await fetch(PARTICIPANTS_URL, {
         method: "POST",
         headers: {
@@ -942,7 +951,7 @@
           "Authorization": "Bearer " + ANON_KEY,
           "Prefer": "return=representation"
         },
-        body: JSON.stringify({ plan_id: planId, name })
+        body: JSON.stringify(data)
       });
       if (res.ok) {
         const inserted = await res.json();
@@ -1014,7 +1023,10 @@
         let participantsHtml = "";
         if (planParticipants.length > 0) {
           participantsHtml = '<div class="participants">' +
-            planParticipants.map(pt => `<span>${pt.name}</span>`).join("") +
+            planParticipants.map(pt => {
+              const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+              return `<span>${pt.name}${timeStr}</span>`;
+            }).join("") +
             '</div>';
         }
         let locationHtml = "";
@@ -1173,7 +1185,10 @@
       let participantsHtml = "";
       if (planParticipants.length > 0) {
         participantsHtml = '<div class="participants">' +
-          planParticipants.map(pt => `<span>${pt.name}</span>`).join("") +
+          planParticipants.map(pt => {
+            const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+            return `<span>${pt.name}${timeStr}</span>`;
+          }).join("") +
           '</div>';
       }
 
@@ -1255,6 +1270,8 @@
       select.innerHTML += `<option value="${n.name}">${n.name}</option>`;
     });
     document.getElementById("inputNewName").value = "";
+    document.getElementById("joinTimeFrom").value = "";
+    document.getElementById("joinTimeTo").value = "";
     document.getElementById("joinModalOverlay").classList.add("open");
   }
 
@@ -1402,12 +1419,17 @@
   document.getElementById("btnJoinSave").addEventListener("click", async () => {
     const selectedName = document.getElementById("selectName").value;
     const newName = document.getElementById("inputNewName").value.trim();
+    const timeFromVal = document.getElementById("joinTimeFrom").value;
+    const timeToVal = document.getElementById("joinTimeTo").value;
 
     let name = selectedName || newName;
     if (!name) {
       alert("Please select or enter a name");
       return;
     }
+
+    const timeFrom = timeFromVal !== "" ? parseInt(timeFromVal) : null;
+    const timeTo = timeToVal !== "" ? parseInt(timeToVal) : null;
 
     // Check if already joined
     const existing = participants.find(p => p.plan_id === currentJoinPlanId && p.name === name);
@@ -1423,7 +1445,7 @@
     }
 
     document.getElementById("joinModalOverlay").classList.remove("open");
-    if (await joinPlan(currentJoinPlanId, name)) {
+    if (await joinPlan(currentJoinPlanId, name, timeFrom, timeTo)) {
       renderActivities();
     }
   });
