@@ -522,6 +522,35 @@
     .btn-save { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
     .btn-save:active { opacity: 0.8; }
 
+    .edit-participants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .edit-participant-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f5f5f5;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    body.dark .edit-participant-item { background: #333; }
+
+    .edit-participant-item span { font-size: 14px; }
+
+    .remove-participant-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
     .loading {
       text-align: center;
       color: #aaa;
@@ -671,6 +700,10 @@
     </div>
     <label>Location (optional)</label>
     <input type="text" id="inputLocation" placeholder="e.g. Pedra do Bau or Google Maps link">
+    <div id="editParticipantsSection" style="display: none;">
+      <label>Participants</label>
+      <div id="editParticipantsList" class="edit-participants-list"></div>
+    </div>
     <div class="modal-buttons">
       <button class="btn-cancel" id="btnCancel">Cancel</button>
       <button class="btn-save" id="btnSave">Save</button>
@@ -993,6 +1026,25 @@
     return participants.filter(p => p.plan_id === planId);
   }
 
+  async function deleteParticipant(id) {
+    try {
+      const res = await fetch(PARTICIPANTS_URL + `?id=eq.${id}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        participants = participants.filter(p => p.id !== id);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not delete participant:", e);
+    }
+    return false;
+  }
+
   async function repeatPlan(id) {
     const original = plans.find(p => p.id === id);
     if (!original) return;
@@ -1306,6 +1358,38 @@
     document.getElementById("inputTimeFrom").value = p.time_from;
     document.getElementById("inputTimeTo").value = p.time_to;
     document.getElementById("inputLocation").value = p.location || "";
+
+    // Show participants section
+    const planParticipants = getParticipantsForPlan(id);
+    const section = document.getElementById("editParticipantsSection");
+    const list = document.getElementById("editParticipantsList");
+
+    if (planParticipants.length > 0) {
+      section.style.display = "block";
+      list.innerHTML = planParticipants.map(pt => {
+        const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+        return `<div class="edit-participant-item">
+          <span>${pt.name}${timeStr}</span>
+          <button class="remove-participant-btn" data-id="${pt.id}">&times;</button>
+        </div>`;
+      }).join("");
+
+      list.querySelectorAll(".remove-participant-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const ptId = parseInt(btn.dataset.id);
+          if (await deleteParticipant(ptId)) {
+            btn.parentElement.remove();
+            if (list.children.length === 0) {
+              section.style.display = "none";
+            }
+            renderActivities();
+          }
+        });
+      });
+    } else {
+      section.style.display = "none";
+    }
+
     document.getElementById("modalOverlay").classList.add("open");
   }
 
@@ -1404,6 +1488,7 @@
     document.getElementById("inputTimeFrom").value = "";
     document.getElementById("inputTimeTo").value = "";
     document.getElementById("inputLocation").value = "";
+    document.getElementById("editParticipantsSection").style.display = "none";
     document.getElementById("modalOverlay").classList.add("open");
   });
 
