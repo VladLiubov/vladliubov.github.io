@@ -1,6 +1,5 @@
 import { Canvas } from '@react-three/fiber'
 import { PresentationControls, Float, Environment, ContactShadows } from '@react-three/drei'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import IPhoneModel from './IPhoneModel'
 
 export default function IPhoneScene() {
@@ -36,10 +35,6 @@ export default function IPhoneScene() {
         blur={2.5}
         far={1.5}
       />
-
-      <EffectComposer>
-        <Bloom luminanceThreshold={0.85} intensity={0.3} />
-      </EffectComposer>
     </Canvas>
   )
 }

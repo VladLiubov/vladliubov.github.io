@@ -35,7 +35,7 @@ export default function CVScreen() {
   return (
     <Html
       transform
-      occlude="blending"
+      occlude
       position={[0, 0.025, SCREEN_Z]}
       scale={scale}
       style={{
