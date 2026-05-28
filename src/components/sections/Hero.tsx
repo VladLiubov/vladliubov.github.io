@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import IPhoneScene from '../scene/IPhoneScene'
 import { CV } from '../../data/cv'
@@ -7,7 +7,11 @@ export default function Hero() {
   const ref = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-  const y = useTransform(scrollYProgress, [0, 0.6], [0, -50])
+  const y       = useTransform(scrollYProgress, [0, 0.6], [0, -50])
+
+  // When the 3D scene is zoomed, collapse the left column so the canvas
+  // expands to fill the full hero width → genuine full-screen feel.
+  const [sceneZoomed, setSceneZoomed] = useState(false)
 
   return (
     <section
@@ -48,60 +52,73 @@ export default function Hero() {
         }}
       />
 
-      {/* Left text block */}
+      {/* ── Left text block ────────────────────────────────────── */}
+      {/* Outer: controls width collapse */}
       <motion.div
+        animate={{ width: sceneZoomed ? '0%' : '44%' }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         style={{
-          opacity,
-          y,
+          flexShrink: 0,
+          overflow: 'hidden',
           position: 'relative',
           zIndex: 2,
-          padding: '0 0 0 8vw',
-          flex: '0 0 44%',
+          opacity,
+          y,
         }}
       >
-        <p
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#6c5ce7',
-            textTransform: 'uppercase',
-            letterSpacing: 2.5,
-            margin: '0 0 14px',
+        {/* Inner: controls content opacity / slide */}
+        <motion.div
+          animate={{
+            opacity: sceneZoomed ? 0 : 1,
+            x: sceneZoomed ? -24 : 0,
           }}
+          transition={{ duration: 0.28 }}
+          style={{ padding: '0 0 0 8vw', minWidth: '44vw' }}
         >
-          {CV.role}
-        </p>
-        <h1
-          style={{
-            fontSize: 'clamp(38px, 4.5vw, 64px)',
-            fontWeight: 800,
-            color: '#1a1a2e',
-            lineHeight: 1.08,
-            margin: '0 0 18px',
-            letterSpacing: -1,
-          }}
-        >
-          {CV.name.split(' ')[0]}
-          <br />
-          {CV.name.split(' ')[1]}
-        </h1>
-        <div
-          style={{
-            width: 36,
-            height: 3,
-            background: 'linear-gradient(to right, #6c5ce7, #a29bfe)',
-            borderRadius: 2,
-            margin: '0 0 18px',
-          }}
-        />
-        <p style={{ fontSize: 14, color: '#888', lineHeight: 1.6 }}>
-          {CV.location}
-          <span style={{ margin: '0 8px', color: '#ccc' }}>·</span>
-          3 yrs experience
-        </p>
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#6c5ce7',
+              textTransform: 'uppercase',
+              letterSpacing: 2.5,
+              margin: '0 0 14px',
+            }}
+          >
+            {CV.role}
+          </p>
+          <h1
+            style={{
+              fontSize: 'clamp(38px, 4.5vw, 64px)',
+              fontWeight: 800,
+              color: '#1a1a2e',
+              lineHeight: 1.08,
+              margin: '0 0 18px',
+              letterSpacing: -1,
+            }}
+          >
+            {CV.name.split(' ')[0]}
+            <br />
+            {CV.name.split(' ')[1]}
+          </h1>
+          <div
+            style={{
+              width: 36,
+              height: 3,
+              background: 'linear-gradient(to right, #6c5ce7, #a29bfe)',
+              borderRadius: 2,
+              margin: '0 0 18px',
+            }}
+          />
+          <p style={{ fontSize: 14, color: '#888', lineHeight: 1.6 }}>
+            {CV.location}
+            <span style={{ margin: '0 8px', color: '#ccc' }}>·</span>
+            3 yrs experience
+          </p>
+        </motion.div>
       </motion.div>
 
-      {/* 3D canvas — fills remaining width */}
+      {/* ── 3D canvas — fills remaining width ─────────────────── */}
       <motion.div
         style={{
           opacity,
@@ -110,30 +127,32 @@ export default function Hero() {
           position: 'relative',
         }}
       >
-        <IPhoneScene />
+        <IPhoneScene onZoomedChange={setSceneZoomed} />
       </motion.div>
 
-      {/* Scroll cue */}
-      <motion.div
-        animate={{ y: [0, 7, 0] }}
-        transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute',
-          bottom: 32,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 4,
-          color: '#bbb',
-          fontSize: 12,
-          pointerEvents: 'none',
-        }}
-      >
-        <span>scroll</span>
-        <span>↓</span>
-      </motion.div>
+      {/* ── Scroll cue ─────────────────────────────────────────── */}
+      {!sceneZoomed && (
+        <motion.div
+          animate={{ y: [0, 7, 0] }}
+          transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            bottom: 32,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 4,
+            color: '#bbb',
+            fontSize: 12,
+            pointerEvents: 'none',
+          }}
+        >
+          <span>scroll</span>
+          <span>↓</span>
+        </motion.div>
+      )}
     </section>
   )
 }

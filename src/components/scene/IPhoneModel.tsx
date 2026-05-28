@@ -181,9 +181,10 @@ interface Props {
   onPointerEnter?:    () => void
   onPointerLeave?:    () => void
   onWheelDragChange?: (dragging: boolean) => void
+  onTap?:             () => void
 }
 
-export default function IPhoneModel({ onPointerEnter, onPointerLeave, onWheelDragChange }: Props) {
+export default function IPhoneModel({ onPointerEnter, onPointerLeave, onWheelDragChange, onTap }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const screenMeshRef = useRef<THREE.Mesh>(null)
@@ -267,7 +268,12 @@ export default function IPhoneModel({ onPointerEnter, onPointerLeave, onWheelDra
     <group onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
 
       {/* ── Body — dark space-grey aluminium ───────────────────── */}
-      <RoundedBox args={[W, H, D]} radius={R} smoothness={6}>
+      <RoundedBox
+        args={[W, H, D]} radius={R} smoothness={6}
+        onClick={e => { e.stopPropagation(); onTap?.() }}
+        onPointerEnter={() => { if (onTap) document.body.style.cursor = 'zoom-in' }}
+        onPointerLeave={() => { if (onTap) document.body.style.cursor = 'auto' }}
+      >
         <meshPhysicalMaterial
           color="#252525"
           metalness={0.75}
