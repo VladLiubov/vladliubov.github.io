@@ -1,13 +1,1627 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Vladyslav Liubov — iOS Developer. Swift, SwiftUI, UIKit. Based in Porto, Portugal." />
-    <title>Vladyslav Liubov — iOS Developer</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Touch With Vlad</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Dark mode */
+    body.dark {
+      background: #1a1a2e;
+      color: #e0e0e0;
+    }
+
+    body.dark header {
+      background: linear-gradient(135deg, #4a3d8f, #6c5ce7);
+    }
+
+    body.dark .weekdays,
+    body.dark .calendar-grid,
+    body.dark .legend {
+      background: #252547;
+      border-color: #333;
+    }
+
+    body.dark .weekdays span { color: #888; }
+
+    body.dark .day-cell { color: #e0e0e0; }
+    body.dark .day-cell.other-month { color: #555; }
+    body.dark .day-cell.selected { background: #2d2a5e; border-color: #6c5ce7; }
+
+    body.dark .activity-card {
+      background: #252547;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    body.dark .activity-info .activity-time { color: #999; }
+    body.dark .activity-info .activity-weather { color: #55efc4; }
+
+    body.dark .modal { background: #252547; }
+    body.dark .modal h2 { color: #e0e0e0; }
+    body.dark .modal label { color: #999; }
+    body.dark .modal input,
+    body.dark .modal select {
+      background: #1a1a2e;
+      border-color: #444;
+      color: #e0e0e0;
+    }
+    body.dark .modal input:focus,
+    body.dark .modal select:focus {
+      background: #2d2a5e;
+      border-color: #6c5ce7;
+    }
+    body.dark .btn-cancel { background: #333; color: #aaa; }
+    body.dark .no-plans { color: #666; }
+    body.dark .selected-date-label { color: #888; }
+    body.dark .list-toggle { background: rgba(255,255,255,0.15); color: #fff; }
+    body.dark .bulk-date-group h3 { color: #888; border-color: #333; }
+    body.dark .bulk-date-group .activity-card { background: #252547; }
+
+    header {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      color: #fff;
+      padding: 20px 16px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+
+    .list-toggle {
+      position: absolute;
+      left: 0;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-toggle:active { background: rgba(255,255,255,0.4); }
+
+    .info-toggle {
+      position: absolute;
+      right: 0;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-toggle:active { background: rgba(255,255,255,0.4); }
+
+    .info-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #252547;
+      color: #e0e0e0;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 320px;
+      text-align: center;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: none;
+    }
+
+    .info-popup.open { display: block; }
+
+    .info-popup h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #a29bfe;
+    }
+
+    .info-popup p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .info-popup button {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      border: none;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .info-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+      display: none;
+    }
+
+    .info-overlay.open { display: block; }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .month-nav button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .month-nav button:active { background: rgba(255,255,255,0.4); }
+
+    .month-nav .month-label {
+      font-size: 16px; font-weight: 600;
+      min-width: 160px; text-align: center;
+      cursor: pointer;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 4px;
+      position: sticky;
+      top: 88px;
+      z-index: 9;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .weekdays span {
+      text-align: center;
+      font-size: 12px; font-weight: 600;
+      color: #888; text-transform: uppercase;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #fff;
+      gap: 1px;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background 0.3s, border-color 0.3s;
+      touch-action: pan-y;
+    }
+
+    .day-cell {
+      min-height: 48px;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: background 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .day-cell .day-number {
+      width: 28px; height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-cell.other-month { color: #ccc; }
+    .day-cell.today { font-weight: 700; color: #6c5ce7; }
+
+    .day-cell.today .day-number {
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 50%;
+    }
+
+    .day-cell.selected {
+      background: #f0edff;
+      border-color: #6c5ce7;
+      border-radius: 8px;
+    }
+
+    .day-cell .dot-row {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .day-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot.climbing { background: #e056fd; }
+    .dot.outdoor-climbing { background: #26de81; }
+    .dot.surf { background: #0984e3; }
+    .dot.other { background: #a0a0a0; }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px; color: #888;
+    }
+
+    .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .activities-panel { padding: 12px 16px 100px; }
+
+    .selected-date-label {
+      font-size: 14px; font-weight: 600;
+      color: #888;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: color 0.3s;
+    }
+
+    .activity-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .activity-card .status-bar {
+      width: 4px;
+      min-height: 40px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+
+    .status-bar.climbing { background: #e056fd; }
+    .status-bar.outdoor-climbing { background: #26de81; }
+    .status-bar.surf { background: #0984e3; }
+    .status-bar.other { background: #a0a0a0; }
+
+    .activity-info { flex: 1; }
+    .activity-info .activity-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .activity-info .activity-time { font-size: 13px; color: #666; transition: color 0.3s; }
+
+    .activity-info .activity-weather {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #0984e3;
+    }
+
+    .activity-info .activity-location {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .activity-info .activity-location a {
+      color: #6c5ce7;
+      text-decoration: none;
+    }
+
+    .activity-info .activity-location a:active {
+      text-decoration: underline;
+    }
+
+
+    .no-plans {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    .no-plans .free-emoji {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ddd;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      align-self: center;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .delete-btn:active { color: #e74c3c; background: #fee; }
+
+    .join-btn {
+      background: linear-gradient(135deg, #00b894, #55efc4);
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: center;
+      transition: opacity 0.2s;
+    }
+
+    .join-btn:active { opacity: 0.7; }
+
+    .participants {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .participants span {
+      display: inline-block;
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+
+    body.dark .participants span {
+      background: #333;
+      color: #ccc;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 30;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px;
+      width: 90%;
+      max-width: 560px;
+      animation: slideUp 0.25s ease-out;
+      transition: background 0.3s;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+      color: #1a1a2e;
+      transition: color 0.3s;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 4px;
+      margin-top: 12px;
+      transition: color 0.3s;
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #f8f8f8;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    .modal input:focus, .modal select:focus {
+      outline: none;
+      border-color: #6c5ce7;
+      background: #fff;
+    }
+
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-inputs input {
+      flex: 1;
+      text-align: center;
+    }
+
+    .time-inputs span {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-cancel { background: #f0f0f0; color: #666; transition: background 0.3s, color 0.3s; }
+    .btn-save { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
+    .btn-save:active { opacity: 0.8; }
+
+    .edit-participants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .edit-participant-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f5f5f5;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    body.dark .edit-participant-item { background: #333; }
+
+    .edit-participant-item span { font-size: 14px; }
+
+    .remove-participant-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #aaa;
+      padding: 40px 0;
+      font-size: 14px;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .activity-card {
+      animation: fadeSlideIn 0.22s ease-out both;
+    }
+
+    .repeat-btn {
+      background: none;
+      border: none;
+      color: #a29bfe;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 6px;
+      align-self: center;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .repeat-btn:active { color: #6c5ce7; background: #f0edff; }
+
+    .edit-btn {
+      background: none;
+      border: none;
+      color: #a29bfe;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 6px;
+      align-self: center;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .edit-btn:active { color: #6c5ce7; background: #f0edff; }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #a29bfe;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 6px;
+      align-self: center;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .close-btn:active { color: #6c5ce7; background: #f0edff; }
+
+    .closed-label {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #f0f0f0;
+      color: #999;
+      align-self: center;
+    }
+
+    body.dark .closed-label { background: #444; color: #888; }
+
+    .bulk-view { display: none; padding: 12px 16px 100px; }
+    .bulk-view.open { display: block; }
+
+    .bulk-date-group { margin-bottom: 20px; }
+
+    .bulk-date-group h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <button class="list-toggle" id="listToggle" title="List view">&#9776;</button>
+    <h1 id="titleBtn">In Touch With Vlad</h1>
+    <button class="info-toggle" id="infoToggle" title="Info">&#9432;</button>
+  </div>
+  <div class="month-nav">
+    <button id="prevMonth">&#8249;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button id="nextMonth">&#8250;</button>
+  </div>
+</header>
+
+<div class="info-overlay" id="infoOverlay"></div>
+<div class="info-popup" id="infoPopup">
+  <h3>About</h3>
+  <p>Every Sunday, Vlad reveals the future. Check back before it becomes the past</p>
+  <button id="closeInfo">Got it</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot climbing"></span> climb</div>
+  <div class="legend-item"><span class="dot outdoor-climbing"></span> outdoor</div>
+  <div class="legend-item"><span class="dot surf"></span> surf</div>
+</div>
+
+<div class="weekdays">
+  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+
+<div class="calendar-grid" id="calendarGrid"></div>
+
+<div class="activities-panel" id="calendarPanel">
+  <div class="selected-date-label" id="selectedDateLabel"></div>
+  <div id="activitiesList"><div class="loading">Loading plans...</div></div>
+</div>
+
+<div class="bulk-view" id="bulkView"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Add plan</h2>
+    <label>Date</label>
+    <input type="date" id="inputDate">
+    <label>Activity</label>
+    <input type="text" id="inputActivity" placeholder="e.g. Climb in Sao Rock">
+    <label>Type</label>
+    <select id="inputType">
+      <option value="climbing">Climbing</option>
+      <option value="outdoor-climbing">Outdoor Climbing</option>
+      <option value="surf">Surf</option>
+      <option value="other">Other</option>
+    </select>
+    <label>Time</label>
+    <div class="time-inputs">
+      <input type="number" id="inputTimeFrom" placeholder="From" min="0" max="24">
+      <span>to</span>
+      <input type="number" id="inputTimeTo" placeholder="To" min="0" max="24">
+    </div>
+    <label>Location (optional)</label>
+    <input type="text" id="inputLocation" placeholder="e.g. Pedra do Bau or Google Maps link">
+    <div id="editParticipantsSection" style="display: none;">
+      <label>Participants</label>
+      <div id="editParticipantsList" class="edit-participants-list"></div>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="btnCancel">Cancel</button>
+      <button class="btn-save" id="btnSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Modal -->
+<div class="modal-overlay" id="joinModalOverlay">
+  <div class="modal">
+    <h2>Join this plan</h2>
+    <label>Your name</label>
+    <select id="selectName">
+      <option value="">-- Select or add new --</option>
+    </select>
+    <input type="text" id="inputNewName" placeholder="Or type a new name" style="margin-top: 10px;">
+    <label>Your time (optional)</label>
+    <div class="time-inputs">
+      <input type="number" id="joinTimeFrom" placeholder="From" min="0" max="24">
+      <span>to</span>
+      <input type="number" id="joinTimeTo" placeholder="To" min="0" max="24">
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="btnJoinCancel">Cancel</button>
+      <button class="btn-save" id="btnJoinSave">Join</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://zvirwljtdqsgeenlvukd.supabase.co";
+  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2aXJ3bGp0ZHFzZ2Vlbmx2dWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNzY5MjYsImV4cCI6MjA4NTg1MjkyNn0.OKaxkXl3slq4Kx-xsDqT6XVP3ObbOeaxc1WowGJs7Ck";
+  const API_URL = SUPABASE_URL + "/rest/v1/plans";
+  const NAMES_URL = SUPABASE_URL + "/rest/v1/names";
+  const PARTICIPANTS_URL = SUPABASE_URL + "/rest/v1/plan_participants";
+
+  let plans = [];
+  let names = [];
+  let participants = [];
+  let isAdmin = false;
+  let adminKey = "";
+  let currentJoinPlanId = null;
+  let editingPlanId = null;
+  let isListView = true;
+
+  const ACTIVITY_ICONS = {
+    "climbing": "🧗",
+    "outdoor-climbing": "🏔️",
+    "surf": "🏄",
+    "other": "📅"
+  };
+
+  // Weather for outdoor activities (using Open-Meteo free API)
+  const OUTDOOR_TYPES = ["outdoor-climbing", "surf"];
+  const WEATHER_LOCATION = { lat: 41.15, lon: -8.61 }; // Porto, Portugal
+  let weatherCache = {};
+
+  const WEATHER_ICONS = {
+    0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+    45: "🌫️", 48: "🌫️",
+    51: "🌧️", 53: "🌧️", 55: "🌧️",
+    56: "🌧️", 57: "🌧️",  // Freezing drizzle
+    61: "🌧️", 63: "🌧️", 65: "🌧️",
+    66: "🌧️", 67: "🌧️",  // Freezing rain
+    71: "🌨️", 73: "🌨️", 75: "🌨️",
+    77: "🌨️",  // Snow grains
+    80: "🌦️", 81: "🌦️", 82: "🌦️",
+    85: "🌨️", 86: "🌨️",  // Snow showers
+    95: "⛈️", 96: "⛈️", 99: "⛈️"
+  };
+
+  async function fetchWeather(dateStr) {
+    if (weatherCache[dateStr]) return weatherCache[dateStr];
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LOCATION.lat}&longitude=${WEATHER_LOCATION.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.daily && data.daily.time && data.daily.time[0] === dateStr) {
+        const w = {
+          code: data.daily.weather_code[0],
+          tempMax: Math.round(data.daily.temperature_2m_max[0]),
+          tempMin: Math.round(data.daily.temperature_2m_min[0])
+        };
+        weatherCache[dateStr] = w;
+        return w;
+      }
+    } catch (e) {
+      console.error("Weather fetch failed:", e);
+    }
+    return null;
+  }
+
+  function getWeatherHtml(weather) {
+    if (!weather) return "";
+    const icon = WEATHER_ICONS[weather.code] || "☁️";
+    return `<div class="activity-weather">${icon} ${weather.tempMin}°–${weather.tempMax}°C</div>`;
+  }
+
+  const monthNames = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  const today = new Date();
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+  let selectedDate = formatDate(today);
+
+  function formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function getPlansForDate(dateStr) {
+    return plans.filter(p => p.date === dateStr);
+  }
+
+
+  // --- Dark mode (always on) ---
+  document.body.classList.add("dark");
+
+  // --- Info popup ---
+  document.getElementById("infoToggle").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.add("open");
+    document.getElementById("infoPopup").classList.add("open");
+  });
+
+  document.getElementById("closeInfo").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.remove("open");
+    document.getElementById("infoPopup").classList.remove("open");
+  });
+
+  document.getElementById("infoOverlay").addEventListener("click", () => {
+    document.getElementById("infoOverlay").classList.remove("open");
+    document.getElementById("infoPopup").classList.remove("open");
+  });
+
+  // --- Supabase API ---
+  async function loadPlans() {
+    try {
+      const res = await fetch(API_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (!res.ok) {
+        console.error("Load failed:", res.status, await res.text());
+        plans = [];
+      } else {
+        plans = await res.json();
+      }
+    } catch (e) {
+      console.error("Could not load plans:", e);
+      plans = [];
+    }
+    renderCalendar();
+  }
+
+  async function addPlan(plan) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(plan)
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Save failed:", res.status, errText);
+        alert("Failed to save: " + res.status);
+        return false;
+      }
+      const inserted = await res.json();
+      plans.push(inserted[0]);
+      return true;
+    } catch (e) {
+      console.error("Could not save plan:", e);
+      alert("Failed to save. Check your connection.");
+      return false;
+    }
+  }
+
+  async function deletePlan(id) {
+    try {
+      const res = await fetch(API_URL + "?id=eq." + id, {
+        method: "DELETE",
+        headers: {
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey
+        }
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Delete failed:", res.status, errText);
+        alert("Failed to delete: " + res.status);
+        return false;
+      }
+      plans = plans.filter(p => p.id !== id);
+      return true;
+    } catch (e) {
+      console.error("Could not delete plan:", e);
+      alert("Failed to delete. Check your connection.");
+      return false;
+    }
+  }
+
+  async function updatePlan(id, plan) {
+    try {
+      const res = await fetch(API_URL + "?id=eq." + id, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": adminKey,
+          "Authorization": "Bearer " + adminKey,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(plan)
+      });
+      if (!res.ok) {
+        alert("Failed to update: " + res.status);
+        return false;
+      }
+      const updated = await res.json();
+      const idx = plans.findIndex(p => p.id === id);
+      if (idx !== -1) plans[idx] = updated[0];
+      return true;
+    } catch (e) {
+      alert("Failed to update. Check your connection.");
+      return false;
+    }
+  }
+
+  // --- Names & Participants ---
+  async function loadNames() {
+    try {
+      const res = await fetch(NAMES_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        names = await res.json();
+      }
+    } catch (e) {
+      console.error("Could not load names:", e);
+    }
+  }
+
+  async function loadParticipants() {
+    try {
+      const res = await fetch(PARTICIPANTS_URL + "?select=*", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        participants = await res.json();
+      }
+    } catch (e) {
+      console.error("Could not load participants:", e);
+    }
+  }
+
+  async function addName(name) {
+    try {
+      const res = await fetch(NAMES_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({ name })
+      });
+      if (res.ok) {
+        const inserted = await res.json();
+        names.push(inserted[0]);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not save name:", e);
+    }
+    return false;
+  }
+
+  async function joinPlan(planId, name, timeFrom, timeTo) {
+    try {
+      const data = { plan_id: planId, name };
+      if (timeFrom !== null) data.time_from = timeFrom;
+      if (timeTo !== null) data.time_to = timeTo;
+      const res = await fetch(PARTICIPANTS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY,
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        const inserted = await res.json();
+        participants.push(inserted[0]);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not join plan:", e);
+    }
+    return false;
+  }
+
+  function getParticipantsForPlan(planId) {
+    return participants.filter(p => p.plan_id === planId);
+  }
+
+  async function deleteParticipant(id) {
+    try {
+      const res = await fetch(PARTICIPANTS_URL + `?id=eq.${id}`, {
+        method: "DELETE",
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (res.ok) {
+        participants = participants.filter(p => p.id !== id);
+        return true;
+      }
+    } catch (e) {
+      console.error("Could not delete participant:", e);
+    }
+    return false;
+  }
+
+  async function repeatPlan(id) {
+    const original = plans.find(p => p.id === id);
+    if (!original) return;
+    const d = new Date(original.date + "T00:00:00");
+    d.setDate(d.getDate() + 7);
+    const newPlan = {
+      date: formatDate(d),
+      activity: original.activity,
+      activity_type: original.activity_type,
+      time_from: original.time_from,
+      time_to: original.time_to
+    };
+    if (original.location) newPlan.location = original.location;
+    if (await addPlan(newPlan)) {
+      selectedDate = newPlan.date;
+      viewYear = d.getFullYear();
+      viewMonth = d.getMonth();
+      renderCalendar();
+    }
+  }
+
+  function renderBulkView() {
+    const container = document.getElementById("bulkView");
+    const todayStr = formatDate(today);
+    const upcoming = plans
+      .filter(p => p.date >= todayStr)
+      .sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return (a.time_from || 0) - (b.time_from || 0);
+      });
+
+    if (upcoming.length === 0) {
+      container.innerHTML = '<div class="no-plans"><span class="free-emoji">📭</span>No upcoming plans</div>';
+      return;
+    }
+
+    // Group by date
+    const groups = {};
+    upcoming.forEach(p => {
+      if (!groups[p.date]) groups[p.date] = [];
+      groups[p.date].push(p);
+    });
+
+    let html = "";
+    Object.keys(groups).forEach(dateStr => {
+      const d = new Date(dateStr + "T00:00:00");
+      const label = d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
+      html += `<div class="bulk-date-group"><h3>${label}</h3>`;
+      groups[dateStr].forEach((p, idx) => {
+        const typeClass = p.activity_type || "other";
+        const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
+        const planParticipants = getParticipantsForPlan(p.id);
+        let participantsHtml = "";
+        if (planParticipants.length > 0) {
+          participantsHtml = '<div class="participants">' +
+            planParticipants.map(pt => {
+              const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+              return `<span>${pt.name}${timeStr}</span>`;
+            }).join("") +
+            '</div>';
+        }
+        let locationHtml = "";
+        if (p.location) {
+          const isUrl = p.location.startsWith("http");
+          locationHtml = isUrl
+            ? `<div class="activity-location"><a href="${p.location}" target="_blank" rel="noopener">&#128205; Open map</a></div>`
+            : `<div class="activity-location">&#128205; ${p.location}</div>`;
+        }
+        const isOutdoor = OUTDOOR_TYPES.includes(p.activity_type);
+        const joinBtn = p.closed
+          ? '<span class="closed-label">Closed</span>'
+          : `<button class="join-btn" data-plan-id="${p.id}">Join</button>`;
+        html += `
+          <div class="activity-card" style="animation-delay:${idx * 0.06}s" ${isOutdoor ? `data-weather-date="${dateStr}"` : ""}>
+            <div class="status-bar ${typeClass}"></div>
+            <div class="activity-info">
+              <div class="activity-name">${icon} ${p.activity}</div>
+              <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
+              ${isOutdoor ? '<div class="activity-weather" data-weather-slot></div>' : ''}
+              ${locationHtml}
+              ${participantsHtml}
+            </div>
+            ${joinBtn}
+          </div>`;
+      });
+      html += `</div>`;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll(".join-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentJoinPlanId = parseInt(btn.dataset.planId);
+        openJoinModal();
+      });
+    });
+
+    // Load weather for outdoor activities
+    loadWeatherForCards(container);
+  }
+
+  async function loadWeatherForCards(container) {
+    const cards = container.querySelectorAll("[data-weather-date]");
+    const dates = [...new Set([...cards].map(c => c.dataset.weatherDate))];
+    for (const dateStr of dates) {
+      const weather = await fetchWeather(dateStr);
+      if (weather) {
+        container.querySelectorAll(`[data-weather-date="${dateStr}"] [data-weather-slot]`).forEach(slot => {
+          const icon = WEATHER_ICONS[weather.code] || "☁️";
+          slot.textContent = `${icon} ${weather.tempMin}°–${weather.tempMax}°C`;
+        });
+      }
+    }
+  }
+
+  // --- Calendar ---
+  function renderCalendar() {
+    const grid = document.getElementById("calendarGrid");
+    document.getElementById("monthLabel").textContent = `${monthNames[viewMonth]} ${viewYear}`;
+
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    let startDay = firstDay.getDay();
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrev = new Date(viewYear, viewMonth, 0).getDate();
+
+    let cells = "";
+    const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+
+    for (let i = 0; i < totalCells; i++) {
+      let dayNum, dateStr, classes = [];
+
+      if (i < startDay) {
+        dayNum = daysInPrev - startDay + i + 1;
+        const pm = viewMonth === 0 ? 11 : viewMonth - 1;
+        const py = viewMonth === 0 ? viewYear - 1 : viewYear;
+        dateStr = `${py}-${String(pm+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
+        classes.push("other-month");
+      } else if (i >= startDay + daysInMonth) {
+        dayNum = i - startDay - daysInMonth + 1;
+        const nm = viewMonth === 11 ? 0 : viewMonth + 1;
+        const ny = viewMonth === 11 ? viewYear + 1 : viewYear;
+        dateStr = `${ny}-${String(nm+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
+        classes.push("other-month");
+      } else {
+        dayNum = i - startDay + 1;
+        dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
+      }
+
+      if (dateStr === formatDate(today)) classes.push("today");
+      if (dateStr === selectedDate) classes.push("selected");
+
+      const dayPlans = getPlansForDate(dateStr);
+      let dots = "";
+      if (dayPlans.length > 0) {
+        dots = '<div class="dot-row">';
+        dayPlans.forEach(p => {
+          dots += `<span class="dot ${p.activity_type || "other"}"></span>`;
+        });
+        dots += "</div>";
+      }
+
+      const numHtml = `<span class="day-number">${dayNum}</span>`;
+
+      cells += `<div class="day-cell ${classes.join(" ")}" data-date="${dateStr}">${numHtml}${dots}</div>`;
+    }
+
+    grid.innerHTML = cells;
+    grid.querySelectorAll(".day-cell").forEach(cell => {
+      cell.addEventListener("click", () => {
+        selectedDate = cell.dataset.date;
+        renderCalendar();
+      });
+    });
+
+    renderActivities();
+  }
+
+  function renderActivities() {
+    const list = document.getElementById("activitiesList");
+    const label = document.getElementById("selectedDateLabel");
+
+    const d = new Date(selectedDate + "T00:00:00");
+    label.textContent = d.toLocaleDateString("en-US", { weekday:"long", day:"numeric", month:"long" });
+
+    const dayPlans = getPlansForDate(selectedDate)
+      .sort((a, b) => (a.time_from || 0) - (b.time_from || 0));
+
+    if (dayPlans.length === 0) {
+      list.innerHTML = '<div class="no-plans"><span class="free-emoji">&#127940;</span>Vlad is free!</div>';
+      return;
+    }
+
+    let html = "";
+    dayPlans.forEach((p, idx) => {
+      const typeClass = p.activity_type || "other";
+      const icon = ACTIVITY_ICONS[p.activity_type] || ACTIVITY_ICONS["other"];
+      const deleteBtn = isAdmin
+        ? `<button class="delete-btn" data-id="${p.id}">&times;</button>`
+        : "";
+      const repeatBtn = isAdmin
+        ? `<button class="repeat-btn" data-id="${p.id}" title="Copy to next week">&#8635;</button>`
+        : "";
+      const editBtn = isAdmin
+        ? `<button class="edit-btn" data-id="${p.id}" title="Edit">&#9998;</button>`
+        : "";
+      const closeBtn = isAdmin
+        ? `<button class="close-btn" data-id="${p.id}" title="${p.closed ? 'Open for joining' : 'Close for joining'}">${p.closed ? '&#128275;' : '&#128274;'}</button>`
+        : "";
+      const joinBtn = p.closed
+        ? '<span class="closed-label">Closed</span>'
+        : `<button class="join-btn" data-plan-id="${p.id}">Join</button>`;
+
+      let locationHtml = "";
+      if (p.location) {
+        const isUrl = p.location.startsWith("http");
+        locationHtml = isUrl
+          ? `<div class="activity-location"><a href="${p.location}" target="_blank" rel="noopener">&#128205; Open map</a></div>`
+          : `<div class="activity-location">&#128205; ${p.location}</div>`;
+      }
+
+      const planParticipants = getParticipantsForPlan(p.id);
+      let participantsHtml = "";
+      if (planParticipants.length > 0) {
+        participantsHtml = '<div class="participants">' +
+          planParticipants.map(pt => {
+            const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+            return `<span>${pt.name}${timeStr}</span>`;
+          }).join("") +
+          '</div>';
+      }
+
+      const isOutdoor = OUTDOOR_TYPES.includes(p.activity_type);
+      html += `
+        <div class="activity-card" style="animation-delay:${idx * 0.06}s" ${isOutdoor ? `data-weather-date="${selectedDate}"` : ""}>
+          <div class="status-bar ${typeClass}"></div>
+          <div class="activity-info">
+            <div class="activity-name">${icon} ${p.activity}</div>
+            <div class="activity-time">from ${p.time_from} to ${p.time_to}</div>
+            ${isOutdoor ? '<div class="activity-weather" data-weather-slot></div>' : ''}
+            ${locationHtml}
+            ${participantsHtml}
+          </div>
+          ${joinBtn}
+          ${editBtn}
+          ${closeBtn}
+          ${repeatBtn}
+          ${deleteBtn}
+        </div>`;
+    });
+
+    list.innerHTML = html;
+
+    // Load weather for outdoor activities
+    loadWeatherForCards(list);
+
+    if (isAdmin) {
+      list.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = parseInt(btn.dataset.id);
+          if (await deletePlan(id)) {
+            renderCalendar();
+          }
+        });
+      });
+
+      list.querySelectorAll(".repeat-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = parseInt(btn.dataset.id);
+          await repeatPlan(id);
+        });
+      });
+
+      list.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = parseInt(btn.dataset.id);
+          openEditModal(id);
+        });
+      });
+
+      list.querySelectorAll(".close-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = parseInt(btn.dataset.id);
+          const plan = plans.find(p => p.id === id);
+          if (plan) {
+            await updatePlan(id, { closed: !plan.closed });
+            renderCalendar();
+          }
+        });
+      });
+    }
+
+    // Join button handlers
+    list.querySelectorAll(".join-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentJoinPlanId = parseInt(btn.dataset.planId);
+        openJoinModal();
+      });
+    });
+  }
+
+  function openEditModal(id) {
+    const p = plans.find(pl => pl.id === id);
+    if (!p) return;
+    editingPlanId = id;
+    document.querySelector("#modalOverlay h2").textContent = "Edit plan";
+    document.getElementById("inputDate").value = p.date;
+    document.getElementById("inputActivity").value = p.activity;
+    document.getElementById("inputType").value = p.activity_type || "other";
+    document.getElementById("inputTimeFrom").value = p.time_from;
+    document.getElementById("inputTimeTo").value = p.time_to;
+    document.getElementById("inputLocation").value = p.location || "";
+
+    // Show participants section
+    const planParticipants = getParticipantsForPlan(id);
+    const section = document.getElementById("editParticipantsSection");
+    const list = document.getElementById("editParticipantsList");
+
+    if (planParticipants.length > 0) {
+      section.style.display = "block";
+      list.innerHTML = planParticipants.map(pt => {
+        const timeStr = pt.time_from != null && pt.time_to != null ? ` (${pt.time_from}-${pt.time_to})` : '';
+        return `<div class="edit-participant-item">
+          <span>${pt.name}${timeStr}</span>
+          <button class="remove-participant-btn" data-id="${pt.id}">&times;</button>
+        </div>`;
+      }).join("");
+
+      list.querySelectorAll(".remove-participant-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const ptId = parseInt(btn.dataset.id);
+          if (await deleteParticipant(ptId)) {
+            btn.parentElement.remove();
+            if (list.children.length === 0) {
+              section.style.display = "none";
+            }
+            renderActivities();
+          }
+        });
+      });
+    } else {
+      section.style.display = "none";
+    }
+
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+
+  function openJoinModal() {
+    const select = document.getElementById("selectName");
+    select.innerHTML = '<option value="">-- Select or add new --</option>';
+    names.forEach(n => {
+      select.innerHTML += `<option value="${n.name}">${n.name}</option>`;
+    });
+    document.getElementById("inputNewName").value = "";
+    document.getElementById("joinTimeFrom").value = "";
+    document.getElementById("joinTimeTo").value = "";
+    document.getElementById("joinModalOverlay").classList.add("open");
+  }
+
+  // --- Swipe gestures ---
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  const grid = document.getElementById("calendarGrid");
+
+  grid.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  grid.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 60) {
+      if (diff > 0) {
+        viewMonth++;
+        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      } else {
+        viewMonth--;
+        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      }
+      renderCalendar();
+    }
+  }, { passive: true });
+
+  // --- List / Calendar toggle ---
+  document.getElementById("listToggle").addEventListener("click", () => {
+    isListView = !isListView;
+    const btn = document.getElementById("listToggle");
+    const calendarPanel = document.getElementById("calendarPanel");
+    const bulkView = document.getElementById("bulkView");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const weekdays = document.querySelector(".weekdays");
+    const legend = document.querySelector(".legend");
+    const monthNav = document.querySelector(".month-nav");
+
+    if (isListView) {
+      btn.innerHTML = "&#128197;"; // calendar icon
+      btn.title = "Calendar view";
+      calendarGrid.style.display = "none";
+      weekdays.style.display = "none";
+      legend.style.display = "none";
+      monthNav.style.display = "none";
+      calendarPanel.style.display = "none";
+      bulkView.classList.add("open");
+      renderBulkView();
+    } else {
+      btn.innerHTML = "&#9776;"; // list icon
+      btn.title = "List view";
+      calendarGrid.style.display = "";
+      weekdays.style.display = "";
+      legend.style.display = "";
+      monthNav.style.display = "";
+      calendarPanel.style.display = "";
+      bulkView.classList.remove("open");
+    }
+  });
+
+  // --- Tap month label to jump to today ---
+  document.getElementById("monthLabel").addEventListener("click", () => {
+    viewYear = today.getFullYear();
+    viewMonth = today.getMonth();
+    selectedDate = formatDate(today);
+    renderCalendar();
+  });
+
+  // --- Admin / Add plan (click title to access) ---
+  document.getElementById("titleBtn").addEventListener("click", () => {
+    if (!isAdmin) {
+      const key = prompt("Enter your API key:");
+      if (!key) return;
+      adminKey = key;
+      isAdmin = true;
+      renderActivities();
+    }
+    editingPlanId = null;
+    document.querySelector("#modalOverlay h2").textContent = "Add plan";
+    document.getElementById("inputDate").value = selectedDate;
+    document.getElementById("inputActivity").value = "";
+    document.getElementById("inputType").value = "climbing";
+    document.getElementById("inputTimeFrom").value = "";
+    document.getElementById("inputTimeTo").value = "";
+    document.getElementById("inputLocation").value = "";
+    document.getElementById("editParticipantsSection").style.display = "none";
+    document.getElementById("modalOverlay").classList.add("open");
+  });
+
+  document.getElementById("btnCancel").addEventListener("click", () => {
+    editingPlanId = null;
+    document.getElementById("modalOverlay").classList.remove("open");
+  });
+
+  document.getElementById("modalOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById("modalOverlay").classList.remove("open");
+    }
+  });
+
+  document.getElementById("btnSave").addEventListener("click", async () => {
+    const date = document.getElementById("inputDate").value;
+    const activity = document.getElementById("inputActivity").value.trim();
+    const activity_type = document.getElementById("inputType").value;
+    const time_from = parseInt(document.getElementById("inputTimeFrom").value);
+    const time_to = parseInt(document.getElementById("inputTimeTo").value);
+    const location = document.getElementById("inputLocation").value.trim();
+
+    if (!date || !activity || isNaN(time_from) || isNaN(time_to)) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const plan = { date, activity, activity_type, time_from, time_to };
+    if (location) plan.location = location;
+
+    document.getElementById("modalOverlay").classList.remove("open");
+
+    if (editingPlanId) {
+      const id = editingPlanId;
+      editingPlanId = null;
+      if (await updatePlan(id, plan)) {
+        selectedDate = date;
+        isListView ? renderBulkView() : renderCalendar();
+      }
+    } else {
+      if (await addPlan(plan)) {
+        selectedDate = date;
+        isListView ? renderBulkView() : renderCalendar();
+      }
+    }
+  });
+
+  // --- Join modal handlers ---
+  document.getElementById("btnJoinCancel").addEventListener("click", () => {
+    document.getElementById("joinModalOverlay").classList.remove("open");
+  });
+
+  document.getElementById("joinModalOverlay").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById("joinModalOverlay").classList.remove("open");
+    }
+  });
+
+  document.getElementById("btnJoinSave").addEventListener("click", async () => {
+    const selectedName = document.getElementById("selectName").value;
+    const newName = document.getElementById("inputNewName").value.trim();
+    const timeFromVal = document.getElementById("joinTimeFrom").value;
+    const timeToVal = document.getElementById("joinTimeTo").value;
+
+    let name = selectedName || newName;
+    if (!name) {
+      alert("Please select or enter a name");
+      return;
+    }
+
+    const timeFrom = timeFromVal !== "" ? parseInt(timeFromVal) : null;
+    const timeTo = timeToVal !== "" ? parseInt(timeToVal) : null;
+
+    // Check if already joined
+    const existing = participants.find(p => p.plan_id === currentJoinPlanId && p.name === name);
+    if (existing) {
+      alert("You already joined this plan!");
+      document.getElementById("joinModalOverlay").classList.remove("open");
+      return;
+    }
+
+    // If new name, save it to names table
+    if (newName && !names.find(n => n.name === newName)) {
+      await addName(newName);
+    }
+
+    document.getElementById("joinModalOverlay").classList.remove("open");
+    if (await joinPlan(currentJoinPlanId, name, timeFrom, timeTo)) {
+      renderActivities();
+    }
+  });
+
+  // --- Navigation ---
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
+  async function init() {
+    await Promise.all([loadPlans(), loadNames(), loadParticipants()]);
+    // Default to list view
+    if (isListView) {
+      const btn = document.getElementById("listToggle");
+      const calendarPanel = document.getElementById("calendarPanel");
+      const bulkView = document.getElementById("bulkView");
+      const calendarGrid = document.getElementById("calendarGrid");
+      const weekdays = document.querySelector(".weekdays");
+      const legend = document.querySelector(".legend");
+      const monthNav = document.querySelector(".month-nav");
+      btn.innerHTML = "&#128197;";
+      btn.title = "Calendar view";
+      calendarGrid.style.display = "none";
+      weekdays.style.display = "none";
+      legend.style.display = "none";
+      monthNav.style.display = "none";
+      calendarPanel.style.display = "none";
+      bulkView.classList.add("open");
+      renderBulkView();
+    }
+  }
+  init();
+</script>
+
+</body>
 </html>
